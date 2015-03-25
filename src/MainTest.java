@@ -21,12 +21,9 @@ public class MainTest {
 
 		int pixels[] = ImageUtil.getPixels(block);
 
-		for (int argb : pixels) {
-			byte r = (byte) ((argb) & 0xFF);
-			byte g = (byte) ((argb >> 8) & 0xFF);
-			byte b = (byte) ((argb >> 16) & 0xFF);
-			byte a = (byte) ((argb >> 24) & 0xFF);
-			System.out.printf("%12d, (%d, %d, %d, %d)%n", argb, a, r, g, b);
+		for (int pixel : pixels) {
+			System.out.printf("%s -> %s%n", CommonUtil.getPixelARGB(pixel),
+					CommonUtil.getPixelBinaryARGB(pixel));
 		}
 	}
 

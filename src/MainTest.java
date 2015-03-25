@@ -6,13 +6,33 @@ import util.ImageUtil;
 
 public class MainTest {
 	public static void main(String[] args) {
-		//testImageBlocks();
-		//testMD5();
-		testLSB();
+		testWatermark();
+		// testImageBlocks();
+		// testMD5();
+		// testLSB();
+	}
+
+	// In progress...
+	public static void testWatermark() {
+		BufferedImage[][] blocks = ImageUtil.partitionImage("snoopy.png", 8);
+		BufferedImage block = blocks[1][3];
+
+		ImageUtil.writeImage(block, "export", "snoopy8-1x3.png");
+
+		int pixels[] = ImageUtil.getPixels(block);
+
+		for (int argb : pixels) {
+			byte r = (byte) ((argb) & 0xFF);
+			byte g = (byte) ((argb >> 8) & 0xFF);
+			byte b = (byte) ((argb >> 16) & 0xFF);
+			byte a = (byte) ((argb >> 24) & 0xFF);
+			System.out.printf("%12d, (%d, %d, %d, %d)%n", argb, a, r, g, b);
+		}
 	}
 
 	public static void testImageBlocks() {
-		ImageUtil.partitionImage("snoopy.png", 16, "export", "");
+		BufferedImage[][] blocks = ImageUtil.partitionImage("snoopy.png", 16);
+		ImageUtil.writeBlocks(blocks, "export", "snoopy");
 	}
 
 	public static void testMD5() {
@@ -41,7 +61,8 @@ public class MainTest {
 
 				newpixel[count] = (pixelArr[count] & 0xfffffffe) + lsb;
 
-				System.out.printf(lsb + ":(%d, %d)%n", pixelArr[count], newpixel[count]);
+				System.out.printf(lsb + ":(%d, %d)%n", pixelArr[count],
+						newpixel[count]);
 				count++;
 			}
 

@@ -37,3 +37,5 @@ local.properties
 
 # Custom
 export/
+tile/
+Thumbs.db

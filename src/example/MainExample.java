@@ -1,30 +1,75 @@
+package example;
+
+import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
 import util.CommonUtil;
 import util.ImageUtil;
 
-public class MainTest {
+public class MainExample {
 	public static void main(String[] args) {
 		testWatermark();
-		// testImageBlocks();
-		// testMD5();
-		// testLSB();
+		//testImageBlocks();
+		//testMD5();
+		//testLSB();
+
+		testLSBZeroExport();
 	}
 
 	// In progress...
 	public static void testWatermark() {
 		BufferedImage[][] blocks = ImageUtil.partitionImage("snoopy.png", 8);
 		BufferedImage block = blocks[1][3];
-
 		ImageUtil.writeImage(block, "export", "snoopy8-1x3.png");
-
 		int pixels[] = ImageUtil.getPixels(block);
 
 		for (int pixel : pixels) {
-			System.out.printf("%s -> %s%n", CommonUtil.getPixelARGB(pixel),
-					CommonUtil.getPixelBinaryARGB(pixel));
+			pixel = CommonUtil.setLSB(pixel, 1);
+			System.out.printf("%s -> %s %s %d%n", CommonUtil.getPixelARGB(pixel),
+					CommonUtil.getPixelBinaryARGB(pixel), CommonUtil.toBin(pixel), pixel);
 		}
+	}
+
+	public static void testLSBZeroExport() {
+		int blockSize = 128;
+		BufferedImage img = ImageUtil.loadImage("reddit.png");
+		int width = img.getWidth();
+		int height = img.getHeight();
+		int type = img.getType();
+		BufferedImage[][] blocks = ImageUtil.partitionImage(img, blockSize);
+		ImageUtil.writeBlocks(blocks, "export", "foo");
+
+		for (int row = 0; row < blocks.length; row++) {
+			for (int col = 0; col < blocks[row].length; col++) {
+				BufferedImage block = blocks[row][col];
+				int pixels[] = ImageUtil.getPixels(block);
+				int w = block.getWidth();
+				int h = block.getHeight();
+				for (int i = 0; i < pixels.length; i++) {
+					int pixel = pixels[i];
+					int x = i % w;
+					int y = i / h;
+					//System.out.printf("[%1$dx%2$d] [%3$3d, %3$3d]%n", x, y, w);
+					block.setRGB(x, y, CommonUtil.setLSB(pixel, 1));
+				}
+				// block -> Xr*
+			}
+		}
+		BufferedImage outImg = new BufferedImage(width, height, type);
+		Graphics g = outImg.getGraphics();
+		for (int row = 0; row < blocks.length; row++) {
+			for (int col = 0; col < blocks[row].length; col++) {
+				BufferedImage block = blocks[row][col];
+				int w = block.getWidth();
+				int h = block.getHeight();
+				int x = row * w;
+				int y = col * h;
+				System.out.printf("Drawing [%d,%d] at [%d,%d] [%dx%d]%n", row, col, x, y, w, h);
+				g.drawImage(block, x, y, w, h, null);
+			}
+		}
+		ImageUtil.writeImage(outImg, "export", "new_image.png");
 	}
 
 	public static void testImageBlocks() {

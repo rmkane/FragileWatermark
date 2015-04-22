@@ -6,12 +6,25 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class CommonUtil {
+	public static int setLSB(int value, int bit) {
+		return (value & 0xFFFFFFFE) | bit;
+	}
+
 	public static String byteToHex(byte b) {
 		return Integer.toString((b & 0xff) + 0x100, 16).substring(1);
 	}
 
-	public static String byteToBin(byte b) {
-		return String.format("%8s", Integer.toBinaryString(b & 0xff)).replace(' ', '0');
+	public static String toBin(int i) {
+		return toBin(32, Integer.toBinaryString(i));
+	}
+
+	public static String toBin(byte b) {
+		return toBin(8, Integer.toBinaryString(b & 0xff));
+	}
+
+	private static String toBin(int size, String bitString) {
+		return String.format(String.format("%%%ds", size), bitString)
+				.replace(' ', '0');
 	}
 
 	public static String hexDump(byte[] bytes) {
@@ -42,27 +55,30 @@ public class CommonUtil {
 		byte g = (byte) argb.getGreen();
 		byte b = (byte) argb.getBlue();
 
-		return String.format("b[%s, %s, %s, %s]", CommonUtil.byteToBin(a),
-				CommonUtil.byteToBin(r), CommonUtil.byteToBin(g),
-				CommonUtil.byteToBin(b));
+		return String.format("b[%s, %s, %s, %s]", CommonUtil.toBin(a),
+				CommonUtil.toBin(r), CommonUtil.toBin(g), CommonUtil.toBin(b));
 	}
 
 	public static String hashStrMD5(String input) {
 		return CommonUtil.hexDump(hashMD5(input));
 	}
 
-	public static byte[] hashMD5(String input) {
+	public static byte[] hashMD5(byte[] bytes) {
 		try {
-			byte[] bytesOfMessage = input.getBytes("UTF-8");
-			MessageDigest md = MessageDigest.getInstance("MD5");
-
-			return md.digest(bytesOfMessage);
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			return MessageDigest.getInstance("MD5").digest(bytes);
 		} catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
 
+		return null;
+	}
+
+	public static byte[] hashMD5(String input) {
+		try {
+			return hashMD5(input.getBytes("UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 		return null;
 	}
 }

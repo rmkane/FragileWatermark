@@ -1,8 +1,10 @@
+package example;
+
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-import ciphers.PublicKeyCipher;
 import util.CommonUtil;
+import cipher.PublicKeyCipher;
 
 public class RSAExample {
 	public static final String PRIVATE_KEY_FILE = "C:/keys/private.key";

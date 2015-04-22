@@ -1,11 +1,14 @@
 package util;
 
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.awt.image.PixelGrabber;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 
 import javax.imageio.ImageIO;
 
@@ -121,6 +124,42 @@ public class ImageUtil {
 		}
 
 		return imgBytes;
+	}
+
+	public static boolean compareImages(Image imgA, Image imgB) {
+		try {
+
+			PixelGrabber grab1 = new PixelGrabber(imgA, 0, 0, -1, -1, false);
+			PixelGrabber grab2 = new PixelGrabber(imgB, 0, 0, -1, -1, false);
+
+			int[] data1 = null;
+			int[] data2 = null;
+
+			if (grab1.grabPixels()) {
+				int width = grab1.getWidth();
+				int height = grab1.getHeight();
+				data1 = new int[width * height];
+				data1 = (int[]) grab1.getPixels();
+			}
+
+			if (grab2.grabPixels()) {
+				int width = grab2.getWidth();
+				int height = grab2.getHeight();
+				data2 = new int[width * height];
+				data2 = (int[]) grab2.getPixels();
+			}
+
+			return java.util.Arrays.equals(data1, data2);
+
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
+
+		return false;
+	}
+
+	public static boolean compareImages(BufferedImage imgA, BufferedImage imgB) {
+		return Arrays.equals(getPixels(imgA), getPixels(imgB));
 	}
 
 	public static int[] getPixels(BufferedImage img) {

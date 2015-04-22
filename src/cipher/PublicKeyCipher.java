@@ -120,6 +120,7 @@ public class PublicKeyCipher {
 		return null;
 	}
 
+
 	/**
 	 * Encrypt the plain text using public key.
 	 *
@@ -128,18 +129,22 @@ public class PublicKeyCipher {
 	 * @return Encrypted text
 	 * @throws java.lang.Exception
 	 */
-	public byte[] encrypt(String text, PublicKey key) {
+	public byte[] encrypt(byte[] data, PublicKey key) {
 		byte[] cipherText = null;
 		try {
 			final Cipher cipher = Cipher.getInstance(getAlgorithm());
 
 			cipher.init(Cipher.ENCRYPT_MODE, key);
-			cipherText = cipher.doFinal(text.getBytes());
+			cipherText = cipher.doFinal(data);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		return cipherText;
+	}
+
+	public byte[] encrypt(String text, PublicKey key) {
+		return encrypt(text.getBytes(), key);
 	}
 
 	/**

@@ -7,6 +7,11 @@ import java.util.Arrays;
 import util.CommonUtil;
 import util.ImageUtil;
 
+/**
+ * This is only used for testing...
+ *
+ * @author Ryan M. Kane
+ */
 public class MainExample {
 	public static void main(String[] args) {
 		testWatermark();

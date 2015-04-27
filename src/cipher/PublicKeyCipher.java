@@ -15,6 +15,11 @@ import java.security.PublicKey;
 
 import javax.crypto.Cipher;
 
+/**
+ * The class is a Public Key cryptosystem.
+ *
+ * @author Ryan M. Kane
+ */
 public class PublicKeyCipher {
 	private String algorithm;
 
@@ -124,9 +129,9 @@ public class PublicKeyCipher {
 	/**
 	 * Encrypt the plain text using public key.
 	 *
-	 * @param text - original plain text
-	 * @param key - The public key
-	 * @return Encrypted text
+	 * @param text - original plain text.
+	 * @param key - The public key.
+	 * @return Encrypted text.
 	 * @throws java.lang.Exception
 	 */
 	public byte[] encrypt(byte[] data, PublicKey key) {
@@ -150,9 +155,9 @@ public class PublicKeyCipher {
 	/**
 	 * Decrypt text using private key.
 	 *
-	 * @param text - encrypted text
-	 * @param key - The private key
-	 * @return plain text
+	 * @param text - encrypted text.
+	 * @param key - The private key.
+	 * @return plain text.
 	 * @throws java.lang.Exception
 	 */
 	public String decrypt(byte[] text, PrivateKey key) {

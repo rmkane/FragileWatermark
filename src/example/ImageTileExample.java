@@ -6,6 +6,12 @@ import java.awt.image.BufferedImage;
 
 import util.ImageUtil;
 
+/**
+ * This is unused by the application. [Ignore]
+ *
+ * @author Ryan M. Kane
+ *
+ */
 public class ImageTileExample {
 	public static void main(String[] args) {
 		//tileImage("mister.png", "mister_tile.png", 0xDDAA33, false, 4, 4, 20, 20, 15, 12);

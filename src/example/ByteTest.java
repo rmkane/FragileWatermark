@@ -4,6 +4,11 @@ import java.util.Arrays;
 
 import util.CommonUtil;
 
+/**
+ * This class is just a test environment for bit-level manipulation.
+ *
+ * @author Ryan M. Kane
+ */
 public class ByteTest {
 	public static void main(String[] args) {
 		int[] data = { 100, 200, 300, 400 };

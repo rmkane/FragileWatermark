@@ -6,16 +6,27 @@ import java.security.PublicKey;
 import util.CommonUtil;
 import cipher.PublicKeyCipher;
 
+/**
+ * This class is an example of RSA encryption.
+ *
+ * @author Ryan
+ */
 public class RSAExample {
+	// Private key filename.
 	public static final String PRIVATE_KEY_FILE = "C:/keys/private.key";
+	// Public key filename.
 	public static final String PUBLIC_KEY_FILE = "C:/keys/public.key";
 
 	public static void main(String[] args) {
+		// Create a new Public Key encryption system using RSA.
 		PublicKeyCipher cipher = new PublicKeyCipher("RSA");
 
 		try {
+			// Check to see if keys already exist.
 			if (!cipher.areKeysPresent(PUBLIC_KEY_FILE, PRIVATE_KEY_FILE)) {
+				// Generate new keys.
 				cipher.generateKey(PUBLIC_KEY_FILE, PRIVATE_KEY_FILE);
+				System.out.println("Keys generated...");
 			}
 
 			final String originalText = "Text to be encrypted.";

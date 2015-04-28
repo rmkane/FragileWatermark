@@ -33,11 +33,11 @@ public class RSAExample {
 
 			// Encrypt the string using the public key
 			final PublicKey publicKey = (PublicKey) cipher.getKey(PUBLIC_KEY_FILE);
-			final byte[] cipherText = cipher.encrypt(originalText, publicKey);
+			final byte[] cipherText = cipher.encryptStr(originalText, publicKey);
 
 			// Decrypt the cipher text using the private key.
 			final PrivateKey privateKey = (PrivateKey) cipher.getKey(PRIVATE_KEY_FILE);
-			final String plainText = cipher.decrypt(cipherText, privateKey);
+			final String plainText = cipher.decryptStr(cipherText, privateKey);
 
 			// Printing the Original, Encrypted and Decrypted Text
 			System.out.println("Original: " + originalText);

@@ -10,6 +10,8 @@ import java.nio.IntBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import buffer.BitBuffer;
+
 /**
  * This class includes static methods to common methods.
  *
@@ -25,6 +27,36 @@ public class CommonUtil {
 	 */
 	public static int setLSB(int value, int bit) {
 		return (value & 0xFFFFFFFE) | bit;
+	}
+
+	/**
+	 * Extracts the least significant bit of each pixels and adds it to a
+	 * bit-buffer. The bit buffer is then returned as an array of bytes.
+	 *
+	 * @param pixels - the pixels which LSB will be extracted from.
+	 * @param bitsPerByte - the number of bits to store for each byte.
+	 * @return an array of bytes which are the LSB from the pixels.
+	 */
+	public static byte[] extractLSB(final int[] pixels, final int bitsPerByte) {
+		int bufferSize = (pixels.length + bitsPerByte - 1) / bitsPerByte;
+		BitBuffer buffer = new BitBuffer(bufferSize, bitsPerByte);
+
+		for (int i = 0; i < pixels.length; i++) {
+			buffer.push((byte) pixels[i]);
+		}
+
+		return buffer.getBytes();
+	}
+
+	/**
+	 * Extracts the least significant bit of each pixels and adds it to a
+	 * bit-buffer. The bit buffer is then returned as an array of bytes.
+	 *
+	 * @param pixels - the pixels which LSB will be extracted from.
+	 * @return an array of bytes which are the LSB from the pixels.
+	 */
+	public static byte[] extractLSB(final int[] pixels) {
+		return extractLSB(pixels, BitBuffer.BITS_PER_BYTE);
 	}
 
 	/**

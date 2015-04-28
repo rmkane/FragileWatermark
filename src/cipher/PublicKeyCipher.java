@@ -129,10 +129,9 @@ public class PublicKeyCipher {
 	/**
 	 * Encrypt the plain text using public key.
 	 *
-	 * @param text - original plain text.
+	 * @param data - data to be encrypted.
 	 * @param key - The public key.
 	 * @return Encrypted text.
-	 * @throws java.lang.Exception
 	 */
 	public byte[] encrypt(byte[] data, PublicKey key) {
 		byte[] cipherText = null;
@@ -148,7 +147,36 @@ public class PublicKeyCipher {
 		return cipherText;
 	}
 
-	public byte[] encrypt(String text, PublicKey key) {
+	/**
+	 * Decrypt byte data using private key.
+	 *
+	 * @param data - the data to decrypt.
+	 * @param key - the private key.
+	 * @return decrypted byte data.
+	 */
+	public byte[] decrypt(byte[] data, PrivateKey key) {
+		byte[] dectyptedText = null;
+		try {
+			final Cipher cipher = Cipher.getInstance(getAlgorithm());
+
+			cipher.init(Cipher.DECRYPT_MODE, key);
+			dectyptedText = cipher.doFinal(data);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return dectyptedText;
+	}
+
+	/**
+	 * Decrypt text using public key.
+	 *
+	 * @param text - encrypted text.
+	 * @param key - The public key.
+	 * @return plain text.
+	 */
+	public byte[] encryptStr(String text, PublicKey key) {
 		return encrypt(text.getBytes(), key);
 	}
 
@@ -158,20 +186,8 @@ public class PublicKeyCipher {
 	 * @param text - encrypted text.
 	 * @param key - The private key.
 	 * @return plain text.
-	 * @throws java.lang.Exception
 	 */
-	public String decrypt(byte[] text, PrivateKey key) {
-		byte[] dectyptedText = null;
-		try {
-			final Cipher cipher = Cipher.getInstance(getAlgorithm());
-
-			cipher.init(Cipher.DECRYPT_MODE, key);
-			dectyptedText = cipher.doFinal(text);
-
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-
-		return new String(dectyptedText);
+	public String decryptStr(byte[] text, PrivateKey key) {
+		return new String(decrypt(text, key));
 	}
 }

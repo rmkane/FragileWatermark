@@ -1,6 +1,8 @@
 package util;
 
 import java.awt.Graphics;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -278,5 +280,72 @@ public class ImageUtil {
 		int height = img.getHeight();
 
 		return img.getRGB(0, 0, width, height, null, 0, width);
+	}
+
+	/**
+	 * Crops an image to a specified size.
+	 *
+	 * @param image - the image to crop.
+	 * @param width - the width we want to crop to.
+	 * @param height - the height we want to crop to.
+	 * @return the cropped image.
+	 */
+	public static BufferedImage cropImage(BufferedImage image, int width, int height) {
+		BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		Graphics g = result.getGraphics();
+		g.drawImage(image, 0, 0, width, height, null);
+		g.dispose();
+
+		// Retuned the new scaled and cropped image.
+		return result;
+	}
+
+	/**
+	 * Scales a BufferedImage to fit the provided height and width.
+	 *
+	 * @param image - the image to scale.
+	 * @param width - the maximum size in width.
+	 * @param height - the maximum size in height.
+	 * @param doCrop - determine if we should crop the image.
+	 * @param interpolationType - the scale interpolation type.
+	 * @return a new image at the expected scale.
+	 */
+	public static BufferedImage scaleToFit(BufferedImage image, int width, int height, boolean doCrop, int interpolationType) {
+		int w = image.getWidth();
+		int h = image.getHeight();
+
+		// If we do not need to scale the image, return the original image.
+		if (w <= width && h <= height) {
+			return image;
+		}
+
+		// Scale the image down.
+		// Note: The resulting image is still the size of the original.
+		double scaleFactor = Math.min((double) width / w, (double) height / h);
+		BufferedImage filtered = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+		AffineTransform at = new AffineTransform();
+		at.scale(scaleFactor, scaleFactor);
+		AffineTransformOp scaleOp = new AffineTransformOp(at, interpolationType);
+		scaleOp.filter(image, filtered);
+
+		if (doCrop) {
+			return cropImage(image, (int) (w * scaleFactor), (int) (h * scaleFactor));
+		}
+
+		return filtered;
+	}
+
+	/**
+	 * Scales a BufferedImage to fit the provided height and width. The
+	 * transformation uses a bilinear interpolation.
+	 *
+	 * @param image - the image to scale.
+	 * @param width - the minimum size in width.
+	 * @param height - the minimum size in height.
+	 * @param doCrop - determine if we should crop the image.
+	 * @return a new image at the expected scale.
+	 */
+	public static BufferedImage scaleToFit(BufferedImage before, int width, int height, boolean crop) {
+		return scaleToFit(before, width, height, crop, AffineTransformOp.TYPE_BILINEAR);
 	}
 }

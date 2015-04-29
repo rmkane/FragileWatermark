@@ -3,12 +3,19 @@ package util;
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Map;
+import java.util.Properties;
 
 import buffer.BitBuffer;
 
@@ -263,5 +270,66 @@ public class CommonUtil {
 		}
 
 		return result;
+	}
+
+	/**
+	 * Loads a Properties object for a given file.
+	 *
+	 * @param clazz - to use correct class path.
+	 * @param filename - the properties File filename.
+	 * @return a Properties object.
+	 */
+	public static Properties loadProperties(Class<?> clazz, String filename) {
+		Properties props = new Properties();
+		InputStream is = null;
+
+		// First try loading from the current directory
+		try {
+			File f = new File(filename);
+			is = new FileInputStream(f);
+		} catch (Exception e) {
+			is = null;
+		}
+
+		try {
+			if (is == null) {
+				// Try loading from classpath
+				is = clazz.getResourceAsStream(filename);
+			}
+			// Try loading properties from the file (if found)
+			props.load(is);
+		} catch (Exception e) {
+		} finally {
+			try {
+				is.close();
+			} catch (IOException e) {
+			}
+		}
+
+		return props;
+	}
+
+	/**
+	 * Saves a map of configuration properties to a properties file.
+	 *
+	 * @param propMap - key-value pairs of properties
+	 * @param filename - the filename to save the properties to.
+	 * @param description - a description of the property list.
+	 */
+	public static void saveProperties(Map<String, String> propMap, String filename, String description) {
+		try {
+			Properties props = new Properties();
+
+			for (Map.Entry<String, String> entry : propMap.entrySet()) {
+				props.setProperty(entry.getKey(), entry.getValue());
+			}
+
+			File f = new File(filename);
+			OutputStream out = new FileOutputStream(f);
+
+			props.store(out, description);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

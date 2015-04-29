@@ -14,10 +14,8 @@ import util.ImageUtil;
  */
 public class ImageTileExample {
 	public static void main(String[] args) {
-		//tileImage("mister.png", "mister_tile.png", 0xDDAA33, false, 4, 4, 20, 20, 15, 12);
-		//tileImage("mister.png", "mister_tile2.png", 0xFF69A6, false, 1, 2, 100);
-
-		tileImage("salem.jpg", "salem_tile.png", 0xDDDD88, false, 4, 4, 2, 2, 40, 34);
+		tileImage("resources/mister.png", "mister_tile.png", 0xDDAA33, false, 4, 4, 20, 20, 15, 12);
+		tileImage("resources/mister.png", "mister_tile2.png", 0xFF69A6, false, 1, 2, 100);
 	}
 
 	public static void tileImage(String inputFilename, String outputFilename,

@@ -29,7 +29,6 @@ public class ImagePanel extends JPanel {
 		this.label = new JLabel(labelText, SwingConstants.CENTER);
 		
 		canvas.setPreferredSize(new Dimension(canvasWidth, canvasHeight));
-		canvas.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		
 		Font lblFont = label.getFont();
 		label.setFont(lblFont.deriveFont(lblFont.getStyle() | Font.BOLD));

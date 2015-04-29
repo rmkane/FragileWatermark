@@ -6,8 +6,9 @@ import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 
@@ -24,14 +25,31 @@ public class ImageUtil {
 	 * @return The loaded image.
 	 */
 	public static BufferedImage loadImage(String filename) {
-		URL url = null;
+		InputStream is = null;
+		
+		// First try loading from the current directory
 		try {
-			ClassLoader loader = CommonUtil.class.getClassLoader();
-			url = loader.getResource("resources/" + filename);
-			return ImageIO.read(url);
+			is = new FileInputStream(new File(filename));
+			return ImageIO.read(is);
 		} catch (Exception e) {
-			System.err.println("Could not load image: " + url);
+			is = null;
 		}
+
+		try {
+			if (is == null) {
+				// Try loading from classpath
+				is = CommonUtil.class.getClassLoader().getResourceAsStream(filename);
+				return ImageIO.read(is);
+			}
+		} catch (Exception e) {
+			System.err.println("Could not load image: " + filename);
+		} finally {
+			try {
+				is.close();
+			} catch (IOException e) {
+			}
+		}
+		
 		return null;
 	}
 
@@ -291,13 +309,17 @@ public class ImageUtil {
 	 * @return the cropped image.
 	 */
 	public static BufferedImage cropImage(BufferedImage image, int width, int height) {
-		BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		Graphics g = result.getGraphics();
-		g.drawImage(image, 0, 0, width, height, null);
-		g.dispose();
+		if (width > 0 && height > 0) {
+			BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+			Graphics g = result.getGraphics();
+			g.drawImage(image, 0, 0, width, height, null);
+			g.dispose();
 
-		// Retuned the new scaled and cropped image.
-		return result;
+			// Retuned the new scaled and cropped image.
+			return result;
+		}
+		
+		return image;
 	}
 
 	/**
@@ -322,6 +344,11 @@ public class ImageUtil {
 		// Scale the image down.
 		// Note: The resulting image is still the size of the original.
 		double scaleFactor = Math.min((double) width / w, (double) height / h);
+		
+		if (scaleFactor <= 0) {
+			return image;
+		}
+			
 		BufferedImage filtered = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 		AffineTransform at = new AffineTransform();
 		at.scale(scaleFactor, scaleFactor);

@@ -9,6 +9,8 @@ import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -23,6 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.UIManager;
 
 import util.CommonUtil;
+import util.FileUtil;
 import util.GuiUtils;
 import util.ImageUtil;
 
@@ -61,7 +64,7 @@ public class MainView extends JPanel {
 	// Menu
 	private JMenuBar menuBar;
 	private JMenu fileMenu, editMenu;
-	private JMenuItem keyGenMenu;
+	private JMenuItem keyGenMenu, editConfigMenu;
 
 	public JMenuBar getMenu() {
 		return this.menuBar;
@@ -78,18 +81,18 @@ public class MainView extends JPanel {
 
 	private void loadConfig() {
 		// Load properties.
-		Properties props = CommonUtil.loadProperties(this.getClass(), CONFIG_FILENAME);
+		Properties props = FileUtil.loadProperties(this.getClass(), CONFIG_FILENAME);
 		this.privateKeyLoc = props.getProperty("privateKeyLoc", DEFAULT_PRIVATE_KEY_LOC);
 		this.publicKeyLoc = props.getProperty("publicKeyLoc", DEFAULT_PUBLIC_KEY_LOC);
 	}
-
+	
 	@SuppressWarnings("unused")
 	private void saveConfig() {
 		// Save properties
 		Map<String, String> propMap = new HashMap<String, String>();
 		propMap.put("privateKeyLoc", this.privateKeyLoc);
 		propMap.put("publicKeyLoc", this.publicKeyLoc);
-		CommonUtil.saveProperties(propMap, CONFIG_FILENAME, "Application configurations.");
+		FileUtil.saveProperties(propMap, CONFIG_FILENAME, "Application configurations.");
 	}
 
 	protected void initComponents() {
@@ -108,8 +111,14 @@ public class MainView extends JPanel {
 
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					File file = EXPLORER.getSelectedFile();
-					GuiUtils.showSuccessMessage("Opening: " + file.getName() + "."
-							+ '\n');
+					GuiUtils.showSuccessMessage("Opening: " + file.getName() + "." + '\n');
+					
+					// Load and draw image.
+					sourceImage = ImageUtil.loadImage(file.getAbsolutePath());
+					imageSourcePanel.setImage(sourceImage);
+					imageSourcePanel.getCanvas().calculateScaledImage();
+					imageSourcePanel.getCanvas().repaint();
+					
 				} else {
 					GuiUtils.showSuccessMessage("Open command cancelled by user." + '\n');
 				}
@@ -121,9 +130,9 @@ public class MainView extends JPanel {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				sourceImage = ImageUtil.loadImage("reddit.png");
-				watermarkImage = ImageUtil.loadImage("snoopy.png");
-				outputImage = ImageUtil.loadImage("duke_stickers.png");
+				sourceImage = ImageUtil.loadImage("resources/reddit.png");
+				watermarkImage = ImageUtil.loadImage("resources/snoopy.png");
+				outputImage = ImageUtil.loadImage("resources/duke_stickers.png");
 
 				redrawImages();
 			}
@@ -141,10 +150,22 @@ public class MainView extends JPanel {
 				System.out.println("Foo");
 			}
 		});
+		
+		editConfigMenu = GuiUtils.createMenuItem("Edit Config", KeyEvent.VK_C,
+				"Edit application configuration file.", new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (!FileUtil.editFile(CONFIG_FILENAME)) {
+					GuiUtils.showErrorMessage("Configuration file missing!");
+				}
+			}
+		});
 
+		fileMenu.add(keyGenMenu);
+		editMenu.add(editConfigMenu);
+		
 		menuBar.add(fileMenu);
 		menuBar.add(editMenu);
-		fileMenu.add(keyGenMenu);
 	}
 
 	private void addChildren() {

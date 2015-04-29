@@ -65,6 +65,9 @@ public class ImageCanvas extends JPanel {
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		
+		int panelWidth = this.getWidth();
+		int panelHeight = this.getHeight();
+		
 		g.clearRect(0, 0, this.getWidth(), this.getHeight());
 		
 		if (showAlphaTile) {
@@ -72,27 +75,26 @@ public class ImageCanvas extends JPanel {
 	        int ih = alphaTileImg.getHeight();
 	        
 	        if (iw > 0 && ih > 0) {
-	            for (int x = 0; x < getWidth(); x += iw) {
-	                for (int y = 0; y < getHeight(); y += ih) {
+	            for (int x = 0; x < panelWidth; x += iw) {
+	                for (int y = 0; y < panelHeight; y += ih) {
 	                    g.drawImage(alphaTileImg, x, y, iw, ih, this);
 	                }
 	            }
 	        }
 		}
 		
+		g.setColor(Color.BLACK);
+		g.drawRect(0, 0, panelWidth-1, panelHeight-1);
+		
 		if (sourceImage == null) {
 			return;
 		}
 		
-		int panelWidth = this.getWidth();
-		int panelHeight = this.getHeight();
 		int imgWidth = this.scaledImage.getWidth();
 		int imgHeight = this.scaledImage.getHeight();
 		int xPos = (int) (panelWidth / 2.0 - imgWidth / 2.0);
 		int yPos = (int) (panelHeight / 2.0 - imgHeight / 2.0);
 
-		g.setColor(Color.BLACK);
-		g.drawRect(0, 0, panelWidth-1, panelHeight-1);
 		g.drawImage(this.scaledImage, xPos, yPos, imgWidth, imgHeight, null);
 		g.dispose();
 	}

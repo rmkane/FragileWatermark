@@ -13,7 +13,7 @@ import util.ImageUtil;
  */
 public class ImageToBlocksToImage {
 	public static void main(String[] args) {
-		BufferedImage img = ImageUtil.loadImage("duke_stickers.png");
+		BufferedImage img = ImageUtil.loadImage("resources/duke_stickers.png");
 		BufferedImage[][] blocks = ImageUtil.partitionImage(img, 8);
 		BufferedImage out = ImageUtil.recombine(blocks);
 

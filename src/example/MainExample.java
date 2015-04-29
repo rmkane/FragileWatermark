@@ -24,7 +24,7 @@ public class MainExample {
 
 	// In progress...
 	public static void testWatermark() {
-		BufferedImage[][] blocks = ImageUtil.partitionImage("snoopy.png", 8);
+		BufferedImage[][] blocks = ImageUtil.partitionImage("resources/snoopy.png", 8);
 		BufferedImage block = blocks[1][3];
 		ImageUtil.writeImage(block, "export", "snoopy8-1x3.png");
 		int pixels[] = ImageUtil.getPixels(block);
@@ -38,7 +38,7 @@ public class MainExample {
 
 	public static void testLSBZeroExport() {
 		int blockSize = 128;
-		BufferedImage img = ImageUtil.loadImage("reddit.png");
+		BufferedImage img = ImageUtil.loadImage("resources/reddit.png");
 		int width = img.getWidth();
 		int height = img.getHeight();
 		int type = img.getType();
@@ -78,7 +78,7 @@ public class MainExample {
 	}
 
 	public static void testImageBlocks() {
-		BufferedImage[][] blocks = ImageUtil.partitionImage("snoopy.png", 16);
+		BufferedImage[][] blocks = ImageUtil.partitionImage("resources/snoopy.png", 16);
 		ImageUtil.writeBlocks(blocks, "export", "snoopy");
 	}
 

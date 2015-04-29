@@ -19,6 +19,6 @@ public class ExtractLsbExample {
 		};
 
 		// Result should be 3 bytes [0101 (5), 0111 (7), 10 (2)]
-		System.out.println(Arrays.toString(CommonUtil.extractLSB(pixels, 4)));
+		System.out.println(Arrays.toString(CommonUtil.extractLsbDynamic(pixels, 4)));
 	}
 }

@@ -35,6 +35,8 @@ public class App {
 		BufferedImage originalImage = ImageUtil.cloneImage(ImageUtil.loadImage(IMAGE_PATH), BufferedImage.TYPE_INT_ARGB);
 		BufferedImage watermarkImage = ImageUtil.loadImage(WATERMARK_PATH);
 		BufferedImage watermarkedImage = testEncode(originalImage, watermarkImage, cipher, (PublicKey) cipher.getKey(PUBLIC_KEY_FILE));
+		
+		@SuppressWarnings("unused")
 		BufferedImage unwatermarkedImage = testDecode(watermarkedImage, watermarkImage, cipher, (PrivateKey) cipher.getKey(PRIVATE_KEY_FILE));
 	}
 
@@ -124,7 +126,7 @@ public class App {
 				// Only watermark full image blocks.
 				if (w == BLOCK_SIZE && h == BLOCK_SIZE) {
 					int[] pixels = ImageUtil.getPixels(block);
-					byte[] lsbs = CommonUtil.extractLSB(pixels);
+					byte[] lsbs = CommonUtil.extractLsb(pixels, 128);
 					byte[] cipherData = cipher.decrypt(lsbs, privateKey); // Decryption Error...
 
 					// Set LSB of each pixel to 0.

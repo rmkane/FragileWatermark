@@ -43,9 +43,10 @@ public class MainView extends JPanel {
 	BufferedImage outputImage;
 
 	private JPanel imagesPanel;
-	private JPanel imageSourcePanel;
-	private JPanel imgWatermarkPanel;
-	private JPanel imageOutputPanel;
+	
+	private ImagePanel imageSourcePanel;
+	private ImagePanel imgWatermarkPanel;
+	private ImagePanel imageOutputPanel;
 
 	private JPanel buttonPanel;
 	private JButton imageSrcBtn;
@@ -76,7 +77,7 @@ public class MainView extends JPanel {
 		this.publicKeyLoc = props.getProperty("publicKeyLoc", DEFAULT_PUBLIC_KEY_LOC);
 	}
 
-	// [Unused]
+	@SuppressWarnings("unused")
 	private void saveConfig() {
 		// Save properties
 		Map<String, String> propMap = new HashMap<String, String>();
@@ -93,6 +94,8 @@ public class MainView extends JPanel {
 		}
 
 		imageSrcBtn = new JButton(new AbstractAction("Choose Source Image") {
+			private static final long serialVersionUID = 4874036618145563606L;
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				int returnVal = EXPLORER.showOpenDialog(MainView.this);
@@ -108,6 +111,8 @@ public class MainView extends JPanel {
 		});
 
 		watermarkImgBtn = new JButton(new AbstractAction("Choose Watermark Image") {
+			private static final long serialVersionUID = -1841000850569755284L;
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				sourceImage = ImageUtil.loadImage("reddit.png");
@@ -143,16 +148,19 @@ public class MainView extends JPanel {
 		imagesPanel.setLayout(new GridLayout(1, 3));
 		this.add(imagesPanel, BorderLayout.CENTER);
 
-		imageSourcePanel = GuiUtils.addImagePanel(imagesPanel, "Source Image", 256, 256);
-		imgWatermarkPanel =  GuiUtils.addImagePanel(imagesPanel, "Watermark Image", 256, 256);
-		imageOutputPanel =  GuiUtils.addImagePanel(imagesPanel, "Output Image", 256, 256);
+		imageSourcePanel = new ImagePanel("Source Image", 256, 256, 10);
+		imagesPanel.add(imageSourcePanel);
+		imgWatermarkPanel = new ImagePanel("Watermark Image", 256, 256, 10);
+		imagesPanel.add(imgWatermarkPanel);
+		imageOutputPanel = new ImagePanel("Output Image", 256, 256, 10);
+		imagesPanel.add(imageOutputPanel);
 
 		buttonPanel = new JPanel();
 		buttonPanel.setLayout(new GridLayout(1, 2));
 		this.add(buttonPanel, BorderLayout.SOUTH);
 		buttonPanel.add(imageSrcBtn);
 		buttonPanel.add(watermarkImgBtn);
-
+		
 		this.addComponentListener(new ComponentListener() {
 			@Override
 			public void componentShown(ComponentEvent e) { }
@@ -171,8 +179,16 @@ public class MainView extends JPanel {
 	}
 
 	public void redrawImages() {
-		GuiUtils.drawImageOnPanel(imageSourcePanel, sourceImage, 10);
-		GuiUtils.drawImageOnPanel(imgWatermarkPanel, watermarkImage, 10);
-		GuiUtils.drawImageOnPanel(imageOutputPanel, outputImage, 10);
+		imageSourcePanel.setImage(sourceImage);
+		imgWatermarkPanel.setImage(watermarkImage);
+		imageOutputPanel.setImage(outputImage);
+		
+		imageSourcePanel.getCanvas().calculateScaledImage();
+		imgWatermarkPanel.getCanvas().calculateScaledImage();
+		imageOutputPanel.getCanvas().calculateScaledImage();
+		
+		imageSourcePanel.repaint();
+		imgWatermarkPanel.repaint();
+		imageOutputPanel.repaint();
 	}
 }

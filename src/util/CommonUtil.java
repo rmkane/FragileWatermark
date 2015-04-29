@@ -44,7 +44,7 @@ public class CommonUtil {
 	 * @param bitsPerByte - the number of bits to store for each byte.
 	 * @return an array of bytes which are the LSB from the pixels.
 	 */
-	public static byte[] extractLSB(final int[] pixels, final int bitsPerByte) {
+	public static byte[] extractLsbDynamic(final int[] pixels, final int bitsPerByte) {
 		int bufferSize = (pixels.length + bitsPerByte - 1) / bitsPerByte;
 		BitBuffer buffer = new BitBuffer(bufferSize, bitsPerByte);
 
@@ -54,16 +54,36 @@ public class CommonUtil {
 
 		return buffer.getBytes();
 	}
-
+	
 	/**
 	 * Extracts the least significant bit of each pixels and adds it to a
 	 * bit-buffer. The bit buffer is then returned as an array of bytes.
 	 *
 	 * @param pixels - the pixels which LSB will be extracted from.
 	 * @return an array of bytes which are the LSB from the pixels.
+	 * 
+	 * @see CommonUtil#extractLsbDynamic(int[], int)
 	 */
-	public static byte[] extractLSB(final int[] pixels) {
-		return extractLSB(pixels, BitBuffer.BITS_PER_BYTE);
+	public static byte[] extractLsbDynamic(final int[] pixels) {
+		return extractLsbDynamic(pixels, BitBuffer.BITS_PER_BYTE);
+	}
+	
+	/**
+	 * Extracts the least significant bit of each pixels and adds it to a
+	 * bit-buffer. The bit buffer is then returned as an array of bytes.
+	 *
+	 * @param pixels - the pixels which LSB will be extracted from.
+	 * @param bufferSize - the size of the buffer in bytes.
+	 * @return an array of bytes which are the LSB from the pixels.
+	 */
+	public static byte[] extractLsb(final int[] pixels, final int bufferSize) {
+		BitBuffer buffer = new BitBuffer(bufferSize);
+
+		for (int i = 0; i < pixels.length; i++) {
+			buffer.push((byte) pixels[i]);
+		}
+
+		return buffer.getBytes();
 	}
 
 	/**

@@ -346,6 +346,6 @@ public class ImageUtil {
 	 * @return a new image at the expected scale.
 	 */
 	public static BufferedImage scaleToFit(BufferedImage before, int width, int height, boolean crop) {
-		return scaleToFit(before, width, height, crop, AffineTransformOp.TYPE_BILINEAR);
+		return scaleToFit(before, width, height, crop, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
 	}
 }

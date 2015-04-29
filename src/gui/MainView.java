@@ -4,7 +4,10 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,6 +37,10 @@ public class MainView extends JPanel {
 
 	private String privateKeyLoc;
 	private String publicKeyLoc;
+
+	BufferedImage sourceImage;
+	BufferedImage watermarkImage;
+	BufferedImage outputImage;
 
 	private JPanel imagesPanel;
 	private JPanel imageSourcePanel;
@@ -103,11 +110,11 @@ public class MainView extends JPanel {
 		watermarkImgBtn = new JButton(new AbstractAction("Choose Watermark Image") {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				sourceImage = ImageUtil.loadImage("reddit.png");
+				watermarkImage = ImageUtil.loadImage("snoopy.png");
+				outputImage = ImageUtil.loadImage("duke_stickers.png");
 
-				// Example...
-				GuiUtils.drawImageOnPanel(imageSourcePanel, ImageUtil.loadImage("reddit.png"), 10);
-				GuiUtils.drawImageOnPanel(imgWatermarkPanel, ImageUtil.loadImage("snoopy.png"), 10);
-				GuiUtils.drawImageOnPanel(imageOutputPanel, ImageUtil.loadImage("duke_stickers.png"), 10);
+				redrawImages();
 			}
 		});
 	}
@@ -145,5 +152,27 @@ public class MainView extends JPanel {
 		this.add(buttonPanel, BorderLayout.SOUTH);
 		buttonPanel.add(imageSrcBtn);
 		buttonPanel.add(watermarkImgBtn);
+
+		this.addComponentListener(new ComponentListener() {
+			@Override
+			public void componentShown(ComponentEvent e) { }
+
+			@Override
+			public void componentResized(ComponentEvent e) {
+				redrawImages();
+			}
+
+			@Override
+			public void componentMoved(ComponentEvent e) { }
+
+			@Override
+			public void componentHidden(ComponentEvent e) { }
+		});
+	}
+
+	public void redrawImages() {
+		GuiUtils.drawImageOnPanel(imageSourcePanel, sourceImage, 10);
+		GuiUtils.drawImageOnPanel(imgWatermarkPanel, watermarkImage, 10);
+		GuiUtils.drawImageOnPanel(imageOutputPanel, outputImage, 10);
 	}
 }

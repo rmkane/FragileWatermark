@@ -36,6 +36,10 @@ public class GuiUtils {
 	}
 
 	public static void drawImageOnPanel(JPanel panel, BufferedImage image, int padding) {
+		if (image == null) {
+			return;
+		}
+
 		int panelWidth = panel.getWidth();
 		int panelHeight = panel.getHeight();
 		int maxWidth = panelWidth - padding * 2;

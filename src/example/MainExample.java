@@ -4,6 +4,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
+import util.BitUtil;
 import util.CommonUtil;
 import util.ImageUtil;
 
@@ -30,7 +31,7 @@ public class MainExample {
 		int pixels[] = ImageUtil.getPixels(block);
 
 		for (int pixel : pixels) {
-			pixel = CommonUtil.setLSB(pixel, 1);
+			pixel = BitUtil.setLSB(pixel, 1);
 			System.out.printf("%s -> %s %s %d%n", CommonUtil.getPixelARGB(pixel),
 					CommonUtil.getPixelBinaryARGB(pixel), CommonUtil.toBin(pixel), pixel);
 		}
@@ -51,14 +52,9 @@ public class MainExample {
 				int pixels[] = ImageUtil.getPixels(block);
 				int w = block.getWidth();
 				int h = block.getHeight();
-				for (int i = 0; i < pixels.length; i++) {
-					int pixel = pixels[i];
-					int x = i % w;
-					int y = i / h;
-					//System.out.printf("[%1$dx%2$d] [%3$3d, %3$3d]%n", x, y, w);
-					block.setRGB(x, y, CommonUtil.setLSB(pixel, 1));
-				}
-				// block -> Xr*
+
+				BitUtil.dropLSB(pixels);
+				block.setRGB(0, 0, w, h, pixels, 0, w);
 			}
 		}
 		BufferedImage outImg = new BufferedImage(width, height, type);

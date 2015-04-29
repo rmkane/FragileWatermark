@@ -7,6 +7,11 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
+/**
+ * This class contains factory methods for creating graphical components.
+ *
+ * @author Ryan M. Kane
+ */
 public class GuiUtils {
 	// =========================================================================
 	// Menu Creation

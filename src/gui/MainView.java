@@ -9,8 +9,6 @@ import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -24,7 +22,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
-import util.CommonUtil;
 import util.FileUtil;
 import util.GuiUtils;
 import util.ImageUtil;
@@ -32,7 +29,7 @@ import util.ImageUtil;
 /**
  * This class represents a view which is the main graphical interface for the
  * application.
- * 
+ *
  * @author Ryan M. Kane
  */
 public class MainView extends JPanel {
@@ -52,7 +49,7 @@ public class MainView extends JPanel {
 	private BufferedImage outputImage;
 
 	private JPanel imagesPanel;
-	
+
 	private ImagePanel imageSourcePanel;
 	private ImagePanel imgWatermarkPanel;
 	private ImagePanel imageOutputPanel;
@@ -85,7 +82,7 @@ public class MainView extends JPanel {
 		this.privateKeyLoc = props.getProperty("privateKeyLoc", DEFAULT_PRIVATE_KEY_LOC);
 		this.publicKeyLoc = props.getProperty("publicKeyLoc", DEFAULT_PUBLIC_KEY_LOC);
 	}
-	
+
 	@SuppressWarnings("unused")
 	private void saveConfig() {
 		// Save properties
@@ -112,13 +109,13 @@ public class MainView extends JPanel {
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					File file = EXPLORER.getSelectedFile();
 					GuiUtils.showSuccessMessage("Opening: " + file.getName() + "." + '\n');
-					
+
 					// Load and draw image.
 					sourceImage = ImageUtil.loadImage(file.getAbsolutePath());
 					imageSourcePanel.setImage(sourceImage);
 					imageSourcePanel.getCanvas().calculateScaledImage();
 					imageSourcePanel.getCanvas().repaint();
-					
+
 				} else {
 					GuiUtils.showSuccessMessage("Open command cancelled by user." + '\n');
 				}
@@ -150,7 +147,7 @@ public class MainView extends JPanel {
 				System.out.println("Foo");
 			}
 		});
-		
+
 		editConfigMenu = GuiUtils.createMenuItem("Edit Config", KeyEvent.VK_C,
 				"Edit application configuration file.", new ActionListener() {
 			@Override
@@ -163,7 +160,7 @@ public class MainView extends JPanel {
 
 		fileMenu.add(keyGenMenu);
 		editMenu.add(editConfigMenu);
-		
+
 		menuBar.add(fileMenu);
 		menuBar.add(editMenu);
 	}
@@ -187,7 +184,7 @@ public class MainView extends JPanel {
 		this.add(buttonPanel, BorderLayout.SOUTH);
 		buttonPanel.add(imageSrcBtn);
 		buttonPanel.add(watermarkImgBtn);
-		
+
 		this.addComponentListener(new ComponentListener() {
 			@Override
 			public void componentShown(ComponentEvent e) { }
@@ -209,13 +206,5 @@ public class MainView extends JPanel {
 		imageSourcePanel.setImage(sourceImage);
 		imgWatermarkPanel.setImage(watermarkImage);
 		imageOutputPanel.setImage(outputImage);
-		
-		imageSourcePanel.getCanvas().calculateScaledImage();
-		imgWatermarkPanel.getCanvas().calculateScaledImage();
-		imageOutputPanel.getCanvas().calculateScaledImage();
-		
-		imageSourcePanel.repaint();
-		imgWatermarkPanel.repaint();
-		imageOutputPanel.repaint();
 	}
 }

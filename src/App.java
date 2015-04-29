@@ -2,6 +2,7 @@ import java.awt.image.BufferedImage;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
+import util.BitUtil;
 import util.CommonUtil;
 import util.ImageUtil;
 import cipher.PublicKeyCipher;
@@ -64,44 +65,24 @@ public class App {
 				if (w == BLOCK_SIZE && h == BLOCK_SIZE) {
 					int[] pixels = ImageUtil.getPixels(block);
 
-					for (int i = 0; i < pixels.length; i++) {
-						int pixel = pixels[i];
-						int x = i % w;
-						int y = i / h;
-						block.setRGB(x, y, CommonUtil.setLSB(pixel, 0));
-					}
+					// Set LSB of each pixel to 0.
+					BitUtil.dropLSB(pixels);
+					block.setRGB(0, 0, block.getWidth(), block.getHeight(), pixels, 0, block.getWidth());
 
 					byte[] params = new byte[] { (byte) imgWidth, (byte) imgHeight, (byte) block.getRGB(0, 0) };
 					byte[] hashBytes = CommonUtil.hashMD5(params);
 					byte[] xorBytes = CommonUtil.xor(hashBytes, watermarkMask);
 
-					System.out.printf("%4d. %s%n", row * blocks.length + col, CommonUtil.hexDump(xorBytes, true));
+					//System.out.printf("%4d. %s%n", row * blocks.length + col, CommonUtil.hexDump(xorBytes, true));
 
 					byte[] cipherData = cipher.encrypt(xorBytes, publicKey);
+					BitUtil.setLSB(pixels, cipherData);
 
-					for (int x = 0; x < cipherData.length; x++) {
-						byte b = cipherData[x];
-						System.out.print(CommonUtil.toBin(b) + ' ');
-					}
-					System.out.println();
+					//System.out.printf("%4d. %s%n", row * blocks.length + col, CommonUtil.hexDump(cipherData, true));
 
-					System.out.printf("%4d. %s%n", row * blocks.length + col, CommonUtil.hexDump(cipherData, true));
+					block.setRGB(0, 0, w, h, pixels, 0, w);
 
-					for (int i = 0; i < pixels.length; i++) {
-						int pixel = pixels[i];
-						int x = i % w;
-						int y = i / h;
-
-						int cipherByte = cipherData[i / 8];
-						int bitPos = i % 8;
-						int cipherBit = (cipherByte >>> (7 - bitPos) & 1);
-
-						pixels[i] = CommonUtil.setLSB(pixel, cipherBit);
-					}
-
-					block.setRGB(0, 0, block.getWidth(), block.getHeight(), pixels, 0, block.getWidth());
-
-					System.out.println(block);
+					//System.out.println(block);
 				}
 			}
 		}
@@ -139,19 +120,15 @@ public class App {
 				// Only watermark full image blocks.
 				if (w == BLOCK_SIZE && h == BLOCK_SIZE) {
 					int[] pixels = ImageUtil.getPixels(block);
-					byte[] lsbs = CommonUtil.extractLsb(pixels, 128);
+					byte[] lsbs = BitUtil.extractLsb(pixels, 128);
 
 					System.out.printf("%4d. %s%n", row * blocks.length + col, CommonUtil.hexDump(lsbs, true));
 
 					byte[] cipherData = cipher.decrypt(lsbs, privateKey); // Decryption Error...
 
 					// Set LSB of each pixel to 0.
-					for (int i = 0; i < pixels.length; i++) {
-						int pixel = pixels[i];
-						int x = i % w;
-						int y = i / h;
-						block.setRGB(x, y, CommonUtil.setLSB(pixel, 0));
-					}
+					BitUtil.dropLSB(pixels);
+					block.setRGB(0, 0, w, h, pixels, 0, w);
 
 					// Expected Hash
 					byte[] params = new byte[] { (byte) imgWidth, (byte) imgHeight, (byte) block.getRGB(0, 0) };

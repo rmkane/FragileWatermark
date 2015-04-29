@@ -10,75 +10,12 @@ import java.nio.IntBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import buffer.BitBuffer;
-
 /**
  * This class includes static methods to common methods.
  *
  * @author Ryan M. Kane
  */
 public class CommonUtil {
-	/**
-	 * Sets the least significant bit of a pixel to the specified bit.
-	 *
-	 * @param value - the value of the pixel.
-	 * @param bit - the new LSB value of either a 0 or 1.
-	 * @return the new pixel value.
-	 */
-	public static int setLSB(int value, int bit) {
-		return (value & 0xFFFFFFFE) | bit;
-	}
-
-	/**
-	 * Extracts the least significant bit of each pixels and adds it to a
-	 * bit-buffer. The bit buffer is then returned as an array of bytes.
-	 *
-	 * @param pixels - the pixels which LSB will be extracted from.
-	 * @param bitsPerByte - the number of bits to store for each byte.
-	 * @return an array of bytes which are the LSB from the pixels.
-	 */
-	public static byte[] extractLsbDynamic(final int[] pixels, final int bitsPerByte) {
-		int bufferSize = (pixels.length + bitsPerByte - 1) / bitsPerByte;
-		BitBuffer buffer = new BitBuffer(bufferSize, bitsPerByte);
-
-		for (int i = 0; i < pixels.length; i++) {
-			buffer.push((byte) pixels[i]);
-		}
-
-		return buffer.getBytes();
-	}
-
-	/**
-	 * Extracts the least significant bit of each pixels and adds it to a
-	 * bit-buffer. The bit buffer is then returned as an array of bytes.
-	 *
-	 * @param pixels - the pixels which LSB will be extracted from.
-	 * @return an array of bytes which are the LSB from the pixels.
-	 *
-	 * @see CommonUtil#extractLsbDynamic(int[], int)
-	 */
-	public static byte[] extractLsbDynamic(final int[] pixels) {
-		return extractLsbDynamic(pixels, BitBuffer.BITS_PER_BYTE);
-	}
-
-	/**
-	 * Extracts the least significant bit of each pixels and adds it to a
-	 * bit-buffer. The bit buffer is then returned as an array of bytes.
-	 *
-	 * @param pixels - the pixels which LSB will be extracted from.
-	 * @param bufferSize - the size of the buffer in bytes.
-	 * @return an array of bytes which are the LSB from the pixels.
-	 */
-	public static byte[] extractLsb(final int[] pixels, final int bufferSize) {
-		BitBuffer buffer = new BitBuffer(bufferSize);
-
-		for (int i = 0; i < pixels.length; i++) {
-			buffer.push((byte) pixels[i]);
-		}
-
-		return buffer.getBytes();
-	}
-
 	/**
 	 * Returns the hexadecimal representation of a byte.
 	 *

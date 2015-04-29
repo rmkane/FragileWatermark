@@ -3,6 +3,12 @@ package gui;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+/**
+ * This class represents an entry point into the MainView. The Application wraps
+ * the MainView in a JFrame window.
+ * 
+ * @author Ryan M. Kane
+ */
 public class Application {
 	private static final String APP_TITLE = "Fragile Watermark App";
 

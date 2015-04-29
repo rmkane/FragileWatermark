@@ -76,7 +76,7 @@ public class App {
 					byte[] xorBytes = CommonUtil.xor(hashBytes, watermarkMask);
 					byte[] cipherData = cipher.encrypt(xorBytes, publicKey);
 
-					//System.out.printf("%4d. %s%n", row * blocks.length + col, CommonUtil.hexDump(cipherData, true));
+					System.out.printf("%4d. %s%n", row * blocks.length + col, CommonUtil.hexDump(cipherData, true));
 
 					for (int i = 0; i < pixels.length; i++) {
 						int pixel = pixels[i];
@@ -127,8 +127,11 @@ public class App {
 				if (w == BLOCK_SIZE && h == BLOCK_SIZE) {
 					int[] pixels = ImageUtil.getPixels(block);
 					byte[] lsbs = CommonUtil.extractLsb(pixels, 128);
+					
+					System.out.printf("%4d. %s%n", row * blocks.length + col, CommonUtil.hexDump(lsbs, true));
+					
 					byte[] cipherData = cipher.decrypt(lsbs, privateKey); // Decryption Error...
-
+					
 					// Set LSB of each pixel to 0.
 					for (int i = 0; i < pixels.length; i++) {
 						int pixel = pixels[i];

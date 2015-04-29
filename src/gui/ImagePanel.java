@@ -11,6 +11,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
+/**
+ * This class represents a panel which holds a label and an ImageCanvas.
+ * 
+ * @author Ryan M. Kane
+ */
 public class ImagePanel extends JPanel {
 	private static final long serialVersionUID = -3590562915044514497L;
 	

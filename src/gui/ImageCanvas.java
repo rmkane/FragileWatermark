@@ -8,6 +8,11 @@ import javax.swing.JPanel;
 
 import util.ImageUtil;
 
+/**
+ * This class represents a panel which handles scaling and drawing an image.
+ * 
+ * @author Ryan M. Kane
+ */
 public class ImageCanvas extends JPanel {
 	private static final long serialVersionUID = -646198773951859720L;
 	
@@ -24,7 +29,7 @@ public class ImageCanvas extends JPanel {
 		this.padding = padding;
 		this.showAlphaTile = showAlphaTile;
 		
-		this.alphaTileImg = createTileImage(4, Color.LIGHT_GRAY, Color.WHITE);
+		this.alphaTileImg = createTileImage(8, Color.LIGHT_GRAY, Color.WHITE);
 	}
 	
 	private BufferedImage createTileImage(int gridSize, Color primaryColor, Color secondaryColor) {

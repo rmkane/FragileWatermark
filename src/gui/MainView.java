@@ -26,6 +26,12 @@ import util.CommonUtil;
 import util.GuiUtils;
 import util.ImageUtil;
 
+/**
+ * This class represents a view which is the main graphical interface for the
+ * application.
+ * 
+ * @author Ryan M. Kane
+ */
 public class MainView extends JPanel {
 	private static final long serialVersionUID = 1082139773406203487L;
 
@@ -38,9 +44,9 @@ public class MainView extends JPanel {
 	private String privateKeyLoc;
 	private String publicKeyLoc;
 
-	BufferedImage sourceImage;
-	BufferedImage watermarkImage;
-	BufferedImage outputImage;
+	private BufferedImage sourceImage;
+	private BufferedImage watermarkImage;
+	private BufferedImage outputImage;
 
 	private JPanel imagesPanel;
 	

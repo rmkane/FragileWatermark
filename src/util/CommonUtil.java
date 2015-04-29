@@ -3,19 +3,12 @@ package util;
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
-import java.util.Properties;
 
 import buffer.BitBuffer;
 
@@ -54,20 +47,20 @@ public class CommonUtil {
 
 		return buffer.getBytes();
 	}
-	
+
 	/**
 	 * Extracts the least significant bit of each pixels and adds it to a
 	 * bit-buffer. The bit buffer is then returned as an array of bytes.
 	 *
 	 * @param pixels - the pixels which LSB will be extracted from.
 	 * @return an array of bytes which are the LSB from the pixels.
-	 * 
+	 *
 	 * @see CommonUtil#extractLsbDynamic(int[], int)
 	 */
 	public static byte[] extractLsbDynamic(final int[] pixels) {
 		return extractLsbDynamic(pixels, BitBuffer.BITS_PER_BYTE);
 	}
-	
+
 	/**
 	 * Extracts the least significant bit of each pixels and adds it to a
 	 * bit-buffer. The bit buffer is then returned as an array of bytes.
@@ -93,7 +86,7 @@ public class CommonUtil {
 	 * @return the hexadecimal representation of the given byte.
 	 */
 	public static String byteToHex(byte b) {
-		return Integer.toString((b & 0xff) + 0x100, 16).substring(1);
+		return String.format("%02X", b);
 	}
 
 	/**

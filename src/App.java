@@ -15,8 +15,8 @@ public class App {
 	public static final String PRIVATE_KEY_FILE = "C:/keys/private.key";
 	public static final String PUBLIC_KEY_FILE = "C:/keys/public.key";
 
-	public static final String IMAGE_PATH = "duke_stickers.png"; //"reddit.png";
-	public static final String WATERMARK_PATH = "snoopy.png";
+	public static final String IMAGE_PATH = "resources/duke_stickers.png"; //"reddit.png";
+	public static final String WATERMARK_PATH = "resources/snoopy.png";
 
 	private static final int BLOCK_SIZE = 8;
 
@@ -35,7 +35,7 @@ public class App {
 		BufferedImage originalImage = ImageUtil.cloneImage(ImageUtil.loadImage(IMAGE_PATH), BufferedImage.TYPE_INT_ARGB);
 		BufferedImage watermarkImage = ImageUtil.loadImage(WATERMARK_PATH);
 		BufferedImage watermarkedImage = testEncode(originalImage, watermarkImage, cipher, (PublicKey) cipher.getKey(PUBLIC_KEY_FILE));
-		
+
 		@SuppressWarnings("unused")
 		BufferedImage unwatermarkedImage = testDecode(watermarkedImage, watermarkImage, cipher, (PrivateKey) cipher.getKey(PRIVATE_KEY_FILE));
 	}
@@ -74,7 +74,16 @@ public class App {
 					byte[] params = new byte[] { (byte) imgWidth, (byte) imgHeight, (byte) block.getRGB(0, 0) };
 					byte[] hashBytes = CommonUtil.hashMD5(params);
 					byte[] xorBytes = CommonUtil.xor(hashBytes, watermarkMask);
+
+					System.out.printf("%4d. %s%n", row * blocks.length + col, CommonUtil.hexDump(xorBytes, true));
+
 					byte[] cipherData = cipher.encrypt(xorBytes, publicKey);
+
+					for (int x = 0; x < cipherData.length; x++) {
+						byte b = cipherData[x];
+						System.out.print(CommonUtil.toBin(b) + ' ');
+					}
+					System.out.println();
 
 					System.out.printf("%4d. %s%n", row * blocks.length + col, CommonUtil.hexDump(cipherData, true));
 
@@ -87,8 +96,12 @@ public class App {
 						int bitPos = i % 8;
 						int cipherBit = (cipherByte >>> (7 - bitPos) & 1);
 
-						block.setRGB(x, y, CommonUtil.setLSB(pixel, cipherBit));
+						pixels[i] = CommonUtil.setLSB(pixel, cipherBit);
 					}
+
+					block.setRGB(0, 0, block.getWidth(), block.getHeight(), pixels, 0, block.getWidth());
+
+					System.out.println(block);
 				}
 			}
 		}
@@ -127,11 +140,11 @@ public class App {
 				if (w == BLOCK_SIZE && h == BLOCK_SIZE) {
 					int[] pixels = ImageUtil.getPixels(block);
 					byte[] lsbs = CommonUtil.extractLsb(pixels, 128);
-					
+
 					System.out.printf("%4d. %s%n", row * blocks.length + col, CommonUtil.hexDump(lsbs, true));
-					
+
 					byte[] cipherData = cipher.decrypt(lsbs, privateKey); // Decryption Error...
-					
+
 					// Set LSB of each pixel to 0.
 					for (int i = 0; i < pixels.length; i++) {
 						int pixel = pixels[i];

@@ -3,6 +3,7 @@ package controller;
 import java.awt.image.BufferedImage;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Arrays;
 
 import util.BitUtil;
 import util.CommonUtil;
@@ -118,7 +119,7 @@ public class MainViewContoller {
 
 				// Only watermark full image blocks.
 				if (block.getWidth() == blockSize && block.getHeight() == blockSize) {
-					checksumData[index] = handleDecodeBlock(cipher, key, block, index, imgWidth, imgHeight);
+					checksumData[index] = handleDecodeBlock(cipher, key, block, watermarkMask, index, imgWidth, imgHeight);
 				} else {
 					checksumData[index] = 0xFF7F7F7F;
 				}
@@ -139,12 +140,13 @@ public class MainViewContoller {
 	 *@param cipher - the cipher method for decoding.
 	 * @param key - the private key.
 	 * @param block - the current watermarked image block.
+	 * @param watermark - the watermark mask to compare to the decrypted hash.
 	 * @param index - the current index for the image block.
 	 * @param imgWidth - the width of the whole watermarked image.
 	 * @param imgHeight - the height of the whole watermarked image.
 	 * @return
 	 */
-	private int handleDecodeBlock(KeyCipher cipher, PrivateKey key, BufferedImage block, int index, int imgWidth, int imgHeight) {
+	private int handleDecodeBlock(KeyCipher cipher, PrivateKey key, BufferedImage block, byte[] watermark, int index, int imgWidth, int imgHeight) {
 		int w = block.getWidth();
 		int h = block.getHeight();
 		int[] pixels = ImageUtil.getPixels(block);
@@ -161,9 +163,15 @@ public class MainViewContoller {
 			byte[] params = new byte[] { (byte) imgWidth, (byte) imgHeight, (byte) block.getRGB(0, 0) };
 			byte[] hashBytes = CommonUtil.hashMD5(params);
 			byte[] xorData = CommonUtil.xor(hashBytes, cipherData);
-
-			// Store the decrypted hash in the result array.
-			return 0xFFFFFFFF;
+			
+			if (Arrays.equals(xorData, watermark)) {
+				// The decrypted hash does not match the expected watermark.
+				return 0xFFFFFFFF;
+			} else {
+				// The block was not tampered with, but the comparison of the
+				// actual and expected watermark failed.
+				return 0xFFFF0000;
+			}
 		} catch (Exception e) {
 			// Expecting a javax.crypto.BadPaddingException.
 			return 0xFF000000;

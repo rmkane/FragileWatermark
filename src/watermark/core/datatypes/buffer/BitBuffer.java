@@ -1,4 +1,4 @@
-package buffer;
+package watermark.core.datatypes.buffer;
 
 /**
  * The class represents a bit-buffer.

@@ -1,4 +1,4 @@
-package util;
+package watermark.core.util;
 
 import java.awt.Component;
 import java.awt.event.ActionListener;

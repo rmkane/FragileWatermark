@@ -1,23 +1,16 @@
-package controller;
+package watermark.core.service;
 
 import java.awt.image.BufferedImage;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Arrays;
 
-import util.BitUtil;
-import util.CommonUtil;
-import util.ImageUtil;
-import cipher.KeyCipher;
+import watermark.core.cipher.KeyCipher;
+import watermark.core.util.BitUtil;
+import watermark.core.util.CommonUtil;
+import watermark.core.util.ImageUtil;
 
-/**
- * This is the controller logic for the main view. It handle encoding and
- * decoding watermarked images.
- *
- * @author Ryan M. Kane
- *
- */
-public class MainViewContoller {
+public class WatermarkServiceImpl implements WatermarkService {
 	/**
 	 * Encode a watermark into an image.
 	 *
@@ -28,7 +21,8 @@ public class MainViewContoller {
 	 * @param blockSize - image blocks pixel size.
 	 * @return an image encoded with an encrypted watermark hash.
 	 */
-	public BufferedImage handleEncode(KeyCipher cipher, PublicKey key, BufferedImage source, BufferedImage watermark, int blockSize) {
+	@Override
+	public BufferedImage encode(KeyCipher cipher, PublicKey key, BufferedImage source, BufferedImage watermark, int blockSize) {
 		int imgWidth = source.getWidth();
 		int imgHeight = source.getHeight();
 
@@ -48,18 +42,18 @@ public class MainViewContoller {
 
 				// Only watermark full image blocks.
 				if (block.getWidth() == blockSize && block.getHeight() == blockSize) {
-					handleEncodeBlock(cipher, key, block, watermarkMask, imgWidth, imgHeight);
+					encodeBlock(cipher, key, block, watermarkMask, imgWidth, imgHeight);
 				}
 			}
 		}
 
 		return ImageUtil.recombine(blocks);
 	}
-	
+
 	/**
 	 * Handles encoding a watermark hash into the LSB of the designated image
 	 * block. This modifies the image block in-place.
-	 * 
+	 *
 	 * @param cipher - the cipher method for encoding.
 	 * @param key - the public key.
 	 * @param block - the current image block.
@@ -67,7 +61,7 @@ public class MainViewContoller {
 	 * @param imgWidth - the width of the whole image to be watermarked.
 	 * @param imgHeight - the height of the whole image to be watermarked.
 	 */
-	private void handleEncodeBlock(KeyCipher cipher, PublicKey key, BufferedImage block, byte[] watermark, int imgWidth, int imgHeight) {
+	private void encodeBlock(KeyCipher cipher, PublicKey key, BufferedImage block, byte[] watermark, int imgWidth, int imgHeight) {
 		int w = block.getWidth();
 		int h = block.getHeight();
 		int[] pixels = ImageUtil.getPixels(block);
@@ -96,7 +90,8 @@ public class MainViewContoller {
 	 * @param blockSize - image blocks pixel size.
 	 * @return the XORed watermark hash.
 	 */
-	public BufferedImage handleDecode(KeyCipher cipher, PrivateKey key, BufferedImage source, BufferedImage watermark, int blockSize) {
+	@Override
+	public BufferedImage decode(KeyCipher cipher, PrivateKey key, BufferedImage source, BufferedImage watermark, int blockSize) {
 		int imgWidth = source.getWidth();
 		int imgHeight = source.getHeight();
 
@@ -119,7 +114,7 @@ public class MainViewContoller {
 
 				// Only watermark full image blocks.
 				if (block.getWidth() == blockSize && block.getHeight() == blockSize) {
-					checksumData[index] = handleDecodeBlock(cipher, key, block, watermarkMask, index, imgWidth, imgHeight);
+					checksumData[index] = decodeBlock(cipher, key, block, watermarkMask, index, imgWidth, imgHeight);
 				} else {
 					checksumData[index] = 0xFF7F7F7F;
 				}
@@ -128,15 +123,15 @@ public class MainViewContoller {
 
 		int checksumWidth = (int) Math.ceil((double) source.getWidth() / blockSize);
 		int checksumHeight = (int) Math.ceil((double) source.getHeight() / blockSize);
-		
+
 		BufferedImage checksumImage = new BufferedImage(checksumWidth, checksumHeight, BufferedImage.TYPE_INT_ARGB);
 		checksumImage.setRGB(0, 0, checksumWidth, checksumHeight, checksumData, 0, checksumWidth);
-		
+
 		return ImageUtil.scaleImage(checksumImage, blockSize);
 	}
-	
+
 	/**
-	 * 
+	 *
 	 *@param cipher - the cipher method for decoding.
 	 * @param key - the private key.
 	 * @param block - the current watermarked image block.
@@ -146,15 +141,15 @@ public class MainViewContoller {
 	 * @param imgHeight - the height of the whole watermarked image.
 	 * @return
 	 */
-	private int handleDecodeBlock(KeyCipher cipher, PrivateKey key, BufferedImage block, byte[] watermark, int index, int imgWidth, int imgHeight) {
+	private int decodeBlock(KeyCipher cipher, PrivateKey key, BufferedImage block, byte[] watermark, int index, int imgWidth, int imgHeight) {
 		int w = block.getWidth();
 		int h = block.getHeight();
 		int[] pixels = ImageUtil.getPixels(block);
 		byte[] lsbs = BitUtil.extractLsb(pixels, 128);
-		
+
 		try {
 			byte[] cipherData = cipher.decrypt(lsbs, key); // Decryption Error...
-			
+
 			// Set LSB of each pixel to 0.
 			BitUtil.dropLSB(pixels);
 			block.setRGB(0, 0, w, h, pixels, 0, w);
@@ -163,7 +158,7 @@ public class MainViewContoller {
 			byte[] params = new byte[] { (byte) imgWidth, (byte) imgHeight, (byte) block.getRGB(0, 0) };
 			byte[] hashBytes = CommonUtil.hashMD5(params);
 			byte[] xorData = CommonUtil.xor(hashBytes, cipherData);
-			
+
 			if (Arrays.equals(xorData, watermark)) {
 				// The decrypted hash does not match the expected watermark.
 				return 0xFFFFFFFF;
@@ -175,6 +170,6 @@ public class MainViewContoller {
 		} catch (Exception e) {
 			// Expecting a javax.crypto.BadPaddingException.
 			return 0xFF000000;
-		}				
+		}
 	}
 }

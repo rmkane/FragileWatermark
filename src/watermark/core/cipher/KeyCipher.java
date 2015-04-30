@@ -1,4 +1,4 @@
-package cipher;
+package watermark.core.cipher;
 
 import java.security.Key;
 import java.security.PrivateKey;

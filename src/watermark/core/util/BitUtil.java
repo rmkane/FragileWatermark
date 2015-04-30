@@ -1,6 +1,7 @@
-package util;
+package watermark.core.util;
 
-import buffer.BitBuffer;
+import watermark.core.datatypes.buffer.BitBuffer;
+
 
 /**
  * The following class handles bit manipulation of bytes and integers.
@@ -33,8 +34,6 @@ public class BitUtil {
 			int cipherBit = ((cipherByte >>> (7 - bitPos)) & 1);
 
 			dest[i] = setLSB(source[i], cipherBit);
-
-			int x = 0;
 		}
 	}
 

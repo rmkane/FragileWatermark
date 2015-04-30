@@ -1,4 +1,4 @@
-package gui;
+package watermark.gui.view;
 
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
@@ -30,11 +30,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
-import util.FileUtil;
-import util.GuiUtils;
-import util.ImageUtil;
-import cipher.KeyCipher;
-import controller.MainViewContoller;
+import watermark.core.cipher.KeyCipher;
+import watermark.core.util.FileUtil;
+import watermark.core.util.GuiUtils;
+import watermark.core.util.ImageUtil;
+import watermark.gui.components.ImagePanel;
+import watermark.gui.controller.MainViewContoller;
 
 /**
  * This class represents a view which is the main graphical interface for the
@@ -90,7 +91,7 @@ public class MainView extends JPanel {
 
 		// Image scaling is set as default.
 		this.scaleImage = true;
-		
+
 		this.loadConfig();
 		this.initComponents();
 		this.addChildren();
@@ -145,6 +146,7 @@ public class MainView extends JPanel {
 		});
 
 		exportImage = new JButton(new AbstractAction("Export Image") {
+			private static final long serialVersionUID = 7468596761718259182L;
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -280,7 +282,7 @@ public class MainView extends JPanel {
 				setScaleImage(((JCheckBoxMenuItem) e.getItemSelectable()).isSelected());
 			}
 		});
-		
+
 		aboutMenu = GuiUtils.createMenuItem("About", KeyEvent.VK_A,
 				"About application", new ActionListener() {
 			@Override
@@ -294,7 +296,7 @@ public class MainView extends JPanel {
 		});
 
 		scaleCheckBox.setSelected(this.scaleImage);
-		
+
 		fileMenu.add(clearImages);
 		fileMenu.add(encodeMenu);
 		fileMenu.add(decodeMenu);

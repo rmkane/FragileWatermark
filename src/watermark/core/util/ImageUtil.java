@@ -1,4 +1,4 @@
-package util;
+package watermark.core.util;
 
 import java.awt.Graphics;
 import java.awt.geom.AffineTransform;

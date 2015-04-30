@@ -1,4 +1,4 @@
-package util;
+package watermark.core.util;
 
 import java.awt.Desktop;
 import java.io.File;

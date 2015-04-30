@@ -1,4 +1,4 @@
-package gui;
+package watermark.gui.components;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -61,12 +61,12 @@ public class ImagePanel extends JPanel {
 	public void setLabel(String label) {
 		this.label.setText(label);
 	}
-	
-	protected boolean isScaleImage() {
+
+	public boolean isScaleImage() {
 		return this.canvas.isScaleImage();
 	}
 
-	protected void setScaleImage(boolean scaleImage) {
+	public void setScaleImage(boolean scaleImage) {
 		this.canvas.setScaleImage(scaleImage);
 	}
 }

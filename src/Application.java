@@ -1,10 +1,9 @@
-import gui.MainView;
-
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
-import cipher.PublicKeyCipher;
-import controller.MainViewContoller;
+import watermark.core.cipher.PublicKeyCipher;
+import watermark.gui.controller.MainViewContoller;
+import watermark.gui.view.MainView;
 
 /**
  * This class represents an entry point into the MainView. The Application wraps

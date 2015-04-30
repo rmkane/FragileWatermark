@@ -1,4 +1,4 @@
-package gui;
+package watermark.gui.components;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -6,7 +6,7 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JPanel;
 
-import util.ImageUtil;
+import watermark.core.util.ImageUtil;
 
 /**
  * This class represents a panel which handles scaling and drawing an image.

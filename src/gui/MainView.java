@@ -94,8 +94,6 @@ public class MainView extends JPanel {
 		this.privateKeyLoc = props.getProperty("privateKeyLoc", DEFAULT_PRIVATE_KEY_LOC);
 		this.publicKeyLoc = props.getProperty("publicKeyLoc", DEFAULT_PUBLIC_KEY_LOC);
 		this.blockSize = Integer.parseInt(props.getProperty("blockSize", "16"), 10);
-
-		System.out.println(privateKeyLoc);
 	}
 
 	@SuppressWarnings("unused")
@@ -253,16 +251,12 @@ public class MainView extends JPanel {
 					return;
 				}
 
-				if (true) {
-					GuiUtils.showErrorMessage("This command does not work correctly.");
-					return;
-				}
-
 				PrivateKey key = cipher.getKey(privateKeyLoc);
 				BufferedImage source = imageSourcePanel.getImage();
 				BufferedImage watermark = imageWatermarkPanel.getImage();
 
-				byte[][] decodedData = controller.handleDecode(cipher, key, source, watermark, blockSize);
+				outputImage = controller.handleDecode(cipher, key, source, watermark, blockSize);;
+				imageOutputPanel.setImage(outputImage);
 			}
 		});
 

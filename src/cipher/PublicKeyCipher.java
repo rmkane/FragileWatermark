@@ -161,18 +161,16 @@ public class PublicKeyCipher implements KeyCipher {
 	 */
 	@Override
 	public byte[] decrypt(byte[] data, PrivateKey key) {
-		byte[] dectyptedText = null;
 		try {
 			final Cipher cipher = Cipher.getInstance(getAlgorithm());
 
 			cipher.init(Cipher.DECRYPT_MODE, key);
-			dectyptedText = cipher.doFinal(data);
-
+			return cipher.doFinal(data);
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 
-		return dectyptedText;
+		return null;
 	}
 
 	/**

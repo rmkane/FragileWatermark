@@ -20,10 +20,10 @@ public class ImagePanel extends JPanel {
 	private ImageCanvas canvas;
 	private JLabel label;
 
-	public ImagePanel(String labelText, int canvasWidth, int canvasHeight, int canvasPadding) {
+	public ImagePanel(String labelText, int canvasWidth, int canvasHeight, int canvasPadding, boolean scaleImage) {
 		super();
 
-		this.canvas = new ImageCanvas(canvasPadding, true);
+		this.canvas = new ImageCanvas(canvasPadding, true, scaleImage);
 		this.label = new JLabel(labelText, SwingConstants.CENTER);
 
 		canvas.setPreferredSize(new Dimension(canvasWidth, canvasHeight));
@@ -60,5 +60,13 @@ public class ImagePanel extends JPanel {
 
 	public void setLabel(String label) {
 		this.label.setText(label);
+	}
+	
+	protected boolean isScaleImage() {
+		return this.canvas.isScaleImage();
+	}
+
+	protected void setScaleImage(boolean scaleImage) {
+		this.canvas.setScaleImage(scaleImage);
 	}
 }

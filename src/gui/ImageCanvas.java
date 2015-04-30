@@ -19,15 +19,17 @@ public class ImageCanvas extends JPanel {
 	private BufferedImage sourceImage;
 	private BufferedImage scaledImage;
 	private int padding;
+	private boolean scaleImage;
 
 	private boolean showAlphaTile;
 	private BufferedImage alphaTileImg;
 
-	public ImageCanvas(int padding, boolean showAlphaTile) {
+	public ImageCanvas(int padding, boolean showAlphaTile, boolean scaleImage) {
 		super();
 
 		this.padding = padding;
 		this.showAlphaTile = showAlphaTile;
+		this.scaleImage = scaleImage;
 
 		this.alphaTileImg = createTileImage(8, Color.LIGHT_GRAY, Color.WHITE);
 	}
@@ -81,29 +83,54 @@ public class ImageCanvas extends JPanel {
 			return;
 		}
 
-		int imgWidth = this.scaledImage.getWidth();
-		int imgHeight = this.scaledImage.getHeight();
-		int xPos = (int) (panelWidth / 2.0 - imgWidth / 2.0);
-		int yPos = (int) (panelHeight / 2.0 - imgHeight / 2.0);
+		if (scaleImage) {
+			int imgWidth = this.scaledImage.getWidth();
+			int imgHeight = this.scaledImage.getHeight();
+			int xPos = (int) (panelWidth / 2.0 - imgWidth / 2.0);
+			int yPos = (int) (panelHeight / 2.0 - imgHeight / 2.0);
 
-		g.drawImage(this.scaledImage, xPos, yPos, imgWidth, imgHeight, null);
+			g.drawImage(this.scaledImage, xPos, yPos, imgWidth, imgHeight, null);
+		} else {
+			int imgWidth = this.sourceImage.getWidth();
+			int imgHeight = this.sourceImage.getHeight();
+
+			g.drawImage(this.sourceImage, padding, padding, imgWidth, imgHeight, null);
+		}
+		
 		g.dispose();
 	}
 
 	protected BufferedImage getImage() {
-		return sourceImage;
+		return this.sourceImage;
 	}
 
 	protected void setImage(BufferedImage image) {
 		this.sourceImage = image;
-		this.calculateScaledImage();
+		
+		if (this.scaleImage) {
+			this.calculateScaledImage();
+		}
 	}
 
 	protected int getPadding() {
-		return padding;
+		return this.padding;
 	}
 
 	protected void setPadding(int padding) {
 		this.padding = padding;
+	}
+
+	protected boolean isScaleImage() {
+		return this.scaleImage;
+	}
+
+	protected void setScaleImage(boolean scaleImage) {
+		this.scaleImage = scaleImage;
+		
+		if (this.scaleImage && this.sourceImage != null) {
+			this.calculateScaledImage();
+		}
+		
+		this.repaint();
 	}
 }

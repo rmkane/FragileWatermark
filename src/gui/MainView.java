@@ -19,6 +19,7 @@ import java.util.Properties;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -47,6 +48,7 @@ public class MainView extends JPanel {
 	private static final String CONFIG_FILENAME = "/resources/appconfig.properties";
 	public static final String DEFAULT_PRIVATE_KEY_LOC = "C:/keys/private.key";
 	public static final String DEFAULT_PUBLIC_KEY_LOC = "C:/keys/public.key";
+	public static final int DEFAULT_BLOCK_SIZE = 32;
 
 	private MainViewContoller controller;
 
@@ -54,6 +56,7 @@ public class MainView extends JPanel {
 	private String privateKeyLoc;
 	private String publicKeyLoc;
 	private int blockSize;
+	private boolean scaleImage;
 
 	private BufferedImage sourceImage;
 	private BufferedImage watermarkImage;
@@ -74,6 +77,7 @@ public class MainView extends JPanel {
 	private JMenuBar menuBar;
 	private JMenu fileMenu, editMenu, helpMenu;
 	private JMenuItem keyGenMenu, editConfigMenu, encodeMenu, decodeMenu, aboutMenu, clearImages;
+	private JCheckBoxMenuItem scaleCheckBox;
 
 	public JMenuBar getMenu() {
 		return this.menuBar;
@@ -82,6 +86,9 @@ public class MainView extends JPanel {
 	public MainView() {
 		super();
 
+		// Image scaling is set as default.
+		this.scaleImage = true;
+		
 		this.loadConfig();
 		this.initComponents();
 		this.addChildren();
@@ -93,7 +100,7 @@ public class MainView extends JPanel {
 		Properties props = FileUtil.loadProperties(this.getClass(), CONFIG_FILENAME);
 		this.privateKeyLoc = props.getProperty("privateKeyLoc", DEFAULT_PRIVATE_KEY_LOC);
 		this.publicKeyLoc = props.getProperty("publicKeyLoc", DEFAULT_PUBLIC_KEY_LOC);
-		this.blockSize = Integer.parseInt(props.getProperty("blockSize", "16"), 10);
+		this.blockSize = Integer.parseInt(props.getProperty("blockSize", Integer.toString(DEFAULT_BLOCK_SIZE, 10)), 10);
 	}
 
 	@SuppressWarnings("unused")
@@ -228,7 +235,8 @@ public class MainView extends JPanel {
 			}
 		});
 
-		encodeMenu = GuiUtils.createMenuItem("Encode", KeyEvent.VK_E, "Encode source image with watermark.", new ActionListener() {
+		encodeMenu = GuiUtils.createMenuItem("Encode", KeyEvent.VK_E,
+				"Encode source image with watermark.", new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (!validateInput()) {
@@ -244,7 +252,8 @@ public class MainView extends JPanel {
 			}
 		});
 
-		decodeMenu = GuiUtils.createMenuItem("Decode", KeyEvent.VK_E, "Decode source image with watermark.", new ActionListener() {
+		decodeMenu = GuiUtils.createMenuItem("Decode", KeyEvent.VK_E,
+				"Decode source image with watermark.", new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (!validateInput()) {
@@ -255,12 +264,23 @@ public class MainView extends JPanel {
 				BufferedImage source = imageSourcePanel.getImage();
 				BufferedImage watermark = imageWatermarkPanel.getImage();
 
-				outputImage = controller.handleDecode(cipher, key, source, watermark, blockSize);;
+				outputImage = controller.handleDecode(cipher, key, source, watermark, blockSize);
 				imageOutputPanel.setImage(outputImage);
 			}
 		});
 
-		aboutMenu = GuiUtils.createMenuItem("About", KeyEvent.VK_A, "About application", new ActionListener() {
+		scaleCheckBox = GuiUtils.createCheckBoxMenuItem("Scale Images",
+				KeyEvent.VK_S,
+				"Automatically adjusts scaling of the preview images.",
+				new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setScaleImage(((JCheckBoxMenuItem) e.getSource()).isSelected());
+			}
+		});
+		
+		aboutMenu = GuiUtils.createMenuItem("About", KeyEvent.VK_A,
+				"About application", new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				GuiUtils.showMessage(
@@ -271,16 +291,26 @@ public class MainView extends JPanel {
 			}
 		});
 
+		scaleCheckBox.setSelected(this.scaleImage);
+		
 		fileMenu.add(clearImages);
 		fileMenu.add(encodeMenu);
 		fileMenu.add(decodeMenu);
 		fileMenu.add(keyGenMenu);
 		editMenu.add(editConfigMenu);
+		editMenu.add(scaleCheckBox);
 		helpMenu.add(aboutMenu);
 
 		menuBar.add(fileMenu);
 		menuBar.add(editMenu);
 		menuBar.add(helpMenu);
+	}
+
+	protected void setScaleImage(boolean selected) {
+		this.scaleImage = selected;
+		this.imageSourcePanel.setScaleImage(selected);
+		this.imageWatermarkPanel.setScaleImage(selected);
+		this.imageOutputPanel.setScaleImage(selected);
 	}
 
 	private void addChildren() {
@@ -290,11 +320,11 @@ public class MainView extends JPanel {
 		imagesPanel.setLayout(new GridLayout(1, 3));
 		this.add(imagesPanel, BorderLayout.CENTER);
 
-		imageSourcePanel = new ImagePanel("Source Image", 256, 256, 10);
+		imageSourcePanel = new ImagePanel("Source Image", 256, 256, 10, this.scaleImage);
 		imagesPanel.add(imageSourcePanel);
-		imageWatermarkPanel = new ImagePanel("Watermark Image", 256, 256, 10);
+		imageWatermarkPanel = new ImagePanel("Watermark Image", 256, 256, 10, this.scaleImage);
 		imagesPanel.add(imageWatermarkPanel);
-		imageOutputPanel = new ImagePanel("Output Image", 256, 256, 10);
+		imageOutputPanel = new ImagePanel("Output Image", 256, 256, 10, this.scaleImage);
 		imagesPanel.add(imageOutputPanel);
 
 		buttonPanel = new JPanel();

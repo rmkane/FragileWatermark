@@ -3,6 +3,7 @@ package util;
 import java.awt.Component;
 import java.awt.event.ActionListener;
 
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -22,6 +23,10 @@ public class GuiUtils {
 
 	public static JMenuItem createMenuItem(String label, int mnemonic, String description, ActionListener action) {
 		return createMenuItem(new JMenuItem(label), mnemonic, description, action);
+	}
+	
+	public static JCheckBoxMenuItem createCheckBoxMenuItem(String label, int mnemonic, String description, ActionListener action) {
+		return createMenuItem(new JCheckBoxMenuItem(label), mnemonic, description, action);
 	}
 
 	public static <T extends JMenuItem> T createMenuItem(T source, int mnemonic, String description, ActionListener action) {

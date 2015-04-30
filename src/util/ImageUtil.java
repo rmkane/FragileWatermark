@@ -349,17 +349,41 @@ public class ImageUtil {
 			return image;
 		}
 
-		BufferedImage filtered = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
+		return scaleImage(image, scaleFactor, scaleFactor, interpolationType);
+	}
+	
+	/**
+	 * Scales an image and returns the resulting image after the scaling is applied.
+	 * 
+	 * @param image - the image to scale.
+	 * @param scaleX - the scale ratio for the width.
+	 * @param scaleY - the scale ratio for the height.
+	 * @param interpolationType - the interpolation type.
+	 * @return a scaled image of the original image.
+	 */
+	public static BufferedImage scaleImage(BufferedImage image, double scaleX, double scaleY, int interpolationType) {
+		int newWidth = (int) (image.getWidth() * scaleX);
+		int newHeight = (int) (image.getHeight() * scaleY);
+		BufferedImage filtered = new BufferedImage(newWidth, newHeight, image.getType());
 		AffineTransform at = new AffineTransform();
-		at.scale(scaleFactor, scaleFactor);
+		
+		at.scale(scaleX, scaleY);
+		
 		AffineTransformOp scaleOp = new AffineTransformOp(at, interpolationType);
+		
 		scaleOp.filter(image, filtered);
-
-		if (doCrop) {
-			return cropImage(image, (int) (w * scaleFactor), (int) (h * scaleFactor));
-		}
-
 		return filtered;
+	}
+	
+	/**
+	 * Scales an image and returns the resulting image after the scaling is applied.
+	 * 
+	 * @param image - the image to scale.
+	 * @param scaleFactor - the scale factor to be applied.
+	 * @return a scaled image at the specified scale.
+	 */
+	public static BufferedImage scaleImage(BufferedImage image, double scaleFactor) {
+		return scaleImage(image, scaleFactor, scaleFactor, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
 	}
 
 	/**

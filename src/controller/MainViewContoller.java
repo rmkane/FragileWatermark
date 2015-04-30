@@ -120,7 +120,7 @@ public class MainViewContoller {
 				if (block.getWidth() == blockSize && block.getHeight() == blockSize) {
 					checksumData[index] = handleDecodeBlock(cipher, key, block, index, imgWidth, imgHeight);
 				} else {
-					checksumData[index] = 0x00000000;
+					checksumData[index] = 0xFF7F7F7F;
 				}
 			}
 		}
@@ -131,7 +131,7 @@ public class MainViewContoller {
 		BufferedImage checksumImage = new BufferedImage(checksumWidth, checksumHeight, BufferedImage.TYPE_INT_ARGB);
 		checksumImage.setRGB(0, 0, checksumWidth, checksumHeight, checksumData, 0, checksumWidth);
 		
-		return checksumImage;
+		return ImageUtil.scaleImage(checksumImage, blockSize);
 	}
 	
 	/**

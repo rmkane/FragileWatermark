@@ -26,7 +26,7 @@ public class ImageUtil {
 	 */
 	public static BufferedImage loadImage(String filename) {
 		InputStream is = null;
-		
+
 		// First try loading from the current directory
 		try {
 			is = new FileInputStream(new File(filename));
@@ -49,7 +49,7 @@ public class ImageUtil {
 			} catch (IOException e) {
 			}
 		}
-		
+
 		return null;
 	}
 
@@ -318,7 +318,7 @@ public class ImageUtil {
 			// Retuned the new scaled and cropped image.
 			return result;
 		}
-		
+
 		return image;
 	}
 
@@ -344,11 +344,11 @@ public class ImageUtil {
 		// Scale the image down.
 		// Note: The resulting image is still the size of the original.
 		double scaleFactor = Math.min((double) width / w, (double) height / h);
-		
+
 		if (scaleFactor <= 0) {
 			return image;
 		}
-			
+
 		BufferedImage filtered = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 		AffineTransform at = new AffineTransform();
 		at.scale(scaleFactor, scaleFactor);
@@ -374,5 +374,27 @@ public class ImageUtil {
 	 */
 	public static BufferedImage scaleToFit(BufferedImage before, int width, int height, boolean crop) {
 		return scaleToFit(before, width, height, crop, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+	}
+
+	/**
+	 * Tiles an image as the background of a graphics object.
+	 *
+	 * @param g - graphics to draw on.
+	 * @param tileImage - image used for tiling.
+	 * @param width - tile along x-axis.
+	 * @param height - tile along y-axis.
+	 */
+	public static void tileImage(Graphics g, BufferedImage tileImage,
+			int width, int height) {
+		int iw = tileImage.getWidth();
+		int ih = tileImage.getHeight();
+
+		if (iw > 0 && ih > 0) {
+			for (int x = 0; x < width; x += iw) {
+				for (int y = 0; y < height; y += ih) {
+					g.drawImage(tileImage, x, y, iw, ih, null);
+				}
+			}
+		}
 	}
 }

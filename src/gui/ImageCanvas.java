@@ -70,19 +70,10 @@ public class ImageCanvas extends JPanel {
 
 		g.clearRect(0, 0, this.getWidth(), this.getHeight());
 
-		if (showAlphaTile) {
-			int iw = alphaTileImg.getWidth();
-			int ih = alphaTileImg.getHeight();
-
-			if (iw > 0 && ih > 0) {
-				for (int x = 0; x < panelWidth; x += iw) {
-					for (int y = 0; y < panelHeight; y += ih) {
-						g.drawImage(alphaTileImg, x, y, iw, ih, this);
-					}
-				}
-			}
+		if (showAlphaTile) { 
+			ImageUtil.tileImage(g, alphaTileImg, panelWidth, panelHeight);
 		}
-
+		
 		g.setColor(Color.BLACK);
 		g.drawRect(0, 0, panelWidth-1, panelHeight-1);
 

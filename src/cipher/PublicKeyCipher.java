@@ -20,7 +20,7 @@ import javax.crypto.Cipher;
  *
  * @author Ryan M. Kane
  */
-public class PublicKeyCipher {
+public class PublicKeyCipher implements KeyCipher {
 	private String algorithm;
 
 	public String getAlgorithm() {
@@ -43,6 +43,7 @@ public class PublicKeyCipher {
 	 * @throws IOException
 	 * @throws FileNotFoundException
 	 */
+	@Override
 	public void generateKey(String publicKeyLocation, String privateKeyLocation) {
 		try {
 			final KeyPairGenerator keyGen = KeyPairGenerator.getInstance(getAlgorithm());
@@ -87,6 +88,7 @@ public class PublicKeyCipher {
 	 *
 	 * @return flag indicating if the pair of keys were generated.
 	 */
+	@Override
 	public boolean areKeysPresent(String publicKeyLocation, String privateKeyLocation) {
 		File privateKey = new File(privateKeyLocation);
 		File publicKey = new File(publicKeyLocation);
@@ -98,7 +100,9 @@ public class PublicKeyCipher {
 		return false;
 	}
 
-	public Key getKey(String fileName) {
+	@Override
+	@SuppressWarnings("unchecked")
+	public <K extends Key> K getKey(String fileName) {
 		ObjectInputStream objInputStream = null;
 		FileInputStream fileInputStream = null;
 
@@ -106,7 +110,7 @@ public class PublicKeyCipher {
 			fileInputStream = new FileInputStream(fileName);
 			objInputStream = new ObjectInputStream(fileInputStream);
 
-			return (Key) objInputStream.readObject();
+			return (K) objInputStream.readObject();
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -133,6 +137,7 @@ public class PublicKeyCipher {
 	 * @param key - The public key.
 	 * @return Encrypted text.
 	 */
+	@Override
 	public byte[] encrypt(byte[] data, PublicKey key) {
 		byte[] cipherText = null;
 		try {
@@ -143,7 +148,7 @@ public class PublicKeyCipher {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return cipherText;
 	}
 
@@ -154,6 +159,7 @@ public class PublicKeyCipher {
 	 * @param key - the private key.
 	 * @return decrypted byte data.
 	 */
+	@Override
 	public byte[] decrypt(byte[] data, PrivateKey key) {
 		byte[] dectyptedText = null;
 		try {

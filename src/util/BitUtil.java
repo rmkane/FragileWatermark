@@ -30,9 +30,11 @@ public class BitUtil {
 		for (int i = 0; i < source.length; i++) {
 			int cipherByte = data[i / 8];
 			int bitPos = i % 8;
-			int cipherBit = (cipherByte >>> (7 - bitPos) & 1);
+			int cipherBit = ((cipherByte >>> (7 - bitPos)) & 1);
 
 			dest[i] = setLSB(source[i], cipherBit);
+
+			int x = 0;
 		}
 	}
 

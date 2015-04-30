@@ -14,6 +14,9 @@ import util.ImageUtil;
  * @author Ryan M. Kane
  */
 public class MainExample {
+
+	// Load the various functions to process a image and check to see if the
+	// image is a watermark candidate
 	public static void main(String[] args) {
 		testWatermark();
 		//testImageBlocks();
@@ -25,9 +28,14 @@ public class MainExample {
 
 	// In progress...
 	public static void testWatermark() {
+		// Image util will read in the snoopy.png with a defined block size of 8
 		BufferedImage[][] blocks = ImageUtil.partitionImage("resources/snoopy.png", 8);
+
+		// Load the image into the desired block size for the given image
 		BufferedImage block = blocks[1][3];
 		ImageUtil.writeImage(block, "export", "snoopy8-1x3.png");
+
+		// After getting the image blocks, then convert this into pixels for further processing.
 		int pixels[] = ImageUtil.getPixels(block);
 
 		for (int pixel : pixels) {

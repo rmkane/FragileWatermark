@@ -6,6 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -272,10 +274,10 @@ public class MainView extends JPanel {
 		scaleCheckBox = GuiUtils.createCheckBoxMenuItem("Scale Images",
 				KeyEvent.VK_S,
 				"Automatically adjusts scaling of the preview images.",
-				new ActionListener() {
+				new ItemListener() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				setScaleImage(((JCheckBoxMenuItem) e.getSource()).isSelected());
+			public void itemStateChanged(ItemEvent e) {
+				setScaleImage(((JCheckBoxMenuItem) e.getItemSelectable()).isSelected());
 			}
 		});
 		

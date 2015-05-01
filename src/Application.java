@@ -17,7 +17,7 @@ import watermark.gui.view.MainView;
  */
 public class Application {
 	private static final String APP_TITLE = "Fragile Watermark App";
-	private static final String APP_VERSION = "1.0.0-beta";
+	private static final String APP_VERSION = "1.0.0-beta2";
 	private static final String APP_ICON = "resources/icon-64.png";
 
 	public static void main(String[] args) {

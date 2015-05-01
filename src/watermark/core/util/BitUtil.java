@@ -2,7 +2,6 @@ package watermark.core.util;
 
 import watermark.core.datatypes.buffer.BitBuffer;
 
-
 /**
  * The following class handles bit manipulation of bytes and integers.
  *

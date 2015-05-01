@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 
 /**
  * This class includes static methods to load, manipulate, and save images.
@@ -18,6 +19,11 @@ import javax.imageio.ImageIO;
  * @author Ryan M. Kane
  */
 public class ImageUtil {
+
+	public static ImageIcon loadIcon(String path) {
+		return new ImageIcon(ImageUtil.class.getClassLoader().getResource(path));
+	}
+
 	/**
 	 * Handles loading of an image from the resources directory.
 	 *
@@ -38,7 +44,7 @@ public class ImageUtil {
 		try {
 			if (is == null) {
 				// Try loading from classpath
-				is = CommonUtil.class.getClassLoader().getResourceAsStream(filename);
+				is = ImageUtil.class.getClassLoader().getResourceAsStream(filename);
 				return ImageIO.read(is);
 			}
 		} catch (Exception e) {
@@ -122,7 +128,7 @@ public class ImageUtil {
 			for (int x = 0; x < cols; x++) {
 				int blockWidth = (x < cols - 1) ? blockSize : isDivisibleX ? blockSize : remainderX;
 				int xOff = x * blockSize;
-				blocks[y][x] = img.getSubimage(xOff, yOff, blockWidth, blockHeight);
+				blocks[y][x] = ImageUtil.cloneImage(img.getSubimage(xOff, yOff, blockWidth, blockHeight));
 			}
 		}
 		return blocks;
@@ -351,10 +357,10 @@ public class ImageUtil {
 
 		return scaleImage(image, scaleFactor, scaleFactor, interpolationType);
 	}
-	
+
 	/**
 	 * Scales an image and returns the resulting image after the scaling is applied.
-	 * 
+	 *
 	 * @param image - the image to scale.
 	 * @param scaleX - the scale ratio for the width.
 	 * @param scaleY - the scale ratio for the height.
@@ -366,18 +372,18 @@ public class ImageUtil {
 		int newHeight = (int) (image.getHeight() * scaleY);
 		BufferedImage filtered = new BufferedImage(newWidth, newHeight, image.getType());
 		AffineTransform at = new AffineTransform();
-		
+
 		at.scale(scaleX, scaleY);
-		
+
 		AffineTransformOp scaleOp = new AffineTransformOp(at, interpolationType);
-		
+
 		scaleOp.filter(image, filtered);
 		return filtered;
 	}
-	
+
 	/**
 	 * Scales an image and returns the resulting image after the scaling is applied.
-	 * 
+	 *
 	 * @param image - the image to scale.
 	 * @param scaleFactor - the scale factor to be applied.
 	 * @return a scaled image at the specified scale.

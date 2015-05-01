@@ -1,6 +1,8 @@
 package watermark.gui.view;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,6 +36,7 @@ import watermark.core.cipher.KeyCipher;
 import watermark.core.util.FileUtil;
 import watermark.core.util.GuiUtils;
 import watermark.core.util.ImageUtil;
+import watermark.gui.components.AboutPanel;
 import watermark.gui.components.ImagePanel;
 import watermark.gui.controller.MainViewContoller;
 
@@ -52,6 +55,9 @@ public class MainView extends JPanel {
 	public static final String DEFAULT_PRIVATE_KEY_LOC = "C:/keys/private.key";
 	public static final String DEFAULT_PUBLIC_KEY_LOC = "C:/keys/public.key";
 	public static final int DEFAULT_BLOCK_SIZE = 32;
+
+	private String appTitle;
+	private String appVersion;
 
 	private MainViewContoller controller;
 
@@ -75,6 +81,8 @@ public class MainView extends JPanel {
 	private JButton imageSrcBtn;
 	private JButton watermarkImgBtn;
 	private JButton exportImage;
+
+	private AboutPanel aboutPanel;
 
 	// Menu
 	private JMenuBar menuBar;
@@ -123,29 +131,31 @@ public class MainView extends JPanel {
 			e.printStackTrace();
 		}
 
-		imageSrcBtn = new JButton(new AbstractAction("Choose Source Image") {
+		imageSrcBtn = setupButton(new JButton(new AbstractAction("Choose Source Image") {
 			private static final long serialVersionUID = 4874036618145563606L;
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				sourceImage = handleLoadImage(imageSourcePanel);
+			public void actionPerformed(ActionEvent ae) {
+				try {
+					sourceImage = handleLoadImage(imageSourcePanel);
+				} catch (IOException e) {
+				}
 			}
-		});
+		}));
 
-		watermarkImgBtn = new JButton(new AbstractAction("Choose Watermark Image") {
+		watermarkImgBtn = setupButton(new JButton(new AbstractAction("Choose Watermark Image") {
 			private static final long serialVersionUID = -1841000850569755284L;
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				//sourceImage = ImageUtil.loadImage("resources/reddit.png");
-				//watermarkImage = ImageUtil.loadImage("resources/snoopy.png");
-				//outputImage = ImageUtil.loadImage("resources/duke_stickers.png");
-				//redrawImages();
-				watermarkImage = handleLoadImage(imageWatermarkPanel);
+			public void actionPerformed(ActionEvent ae) {
+				try {
+					watermarkImage = handleLoadImage(imageWatermarkPanel);
+				} catch (IOException e) {
+				}
 			}
-		});
+		}));
 
-		exportImage = new JButton(new AbstractAction("Export Image") {
+		exportImage = setupButton(new JButton(new AbstractAction("Export Image") {
 			private static final long serialVersionUID = 7468596761718259182L;
 
 			@Override
@@ -159,7 +169,7 @@ public class MainView extends JPanel {
 
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					File file = EXPLORER.getSelectedFile();
-					GuiUtils.showSuccessMessage("Saving: " + file.getName() + "." + '\n');
+					GuiUtils.showSuccessMessage("Saving: " + file.getName() + "...");
 
 					try {
 						ImageIO.write(outputImage, "png", file);
@@ -167,26 +177,45 @@ public class MainView extends JPanel {
 						e1.printStackTrace();
 					}
 				} else {
-					GuiUtils.showSuccessMessage("Save command cancelled by user." + '\n');
+					GuiUtils.showSuccessMessage("Save command cancelled.");
 				}
 			}
-		});
+		}));
 	}
 
-	private BufferedImage handleLoadImage(ImagePanel imagePanel) {
+	private JButton setupButton(JButton button) {
+		Dimension d = button.getPreferredSize();
+		d.height = 48;
+		button.setPreferredSize(d);
+
+		Font f = button.getFont();
+		f = f.deriveFont(Font.BOLD);
+		f = f.deriveFont(12f);
+		button.setFont(f);
+
+		return button;
+	}
+
+	private BufferedImage handleLoadImage(ImagePanel imagePanel) throws IOException {
 		BufferedImage image = null;
 		int returnVal = EXPLORER.showOpenDialog(MainView.this);
 
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = EXPLORER.getSelectedFile();
-			GuiUtils.showSuccessMessage("Opening: " + file.getName() + "." + '\n');
+			GuiUtils.showSuccessMessage("Opening: " + file.getName() + "...");
 
 			// Load and draw image.
 			image = ImageUtil.loadImage(file.getAbsolutePath());
+
+			if (image == null) {
+				GuiUtils.showErrorMessage("Not a valid image file.");
+				throw new IOException();
+			}
+
 			imagePanel.setImage(image);
 
 		} else {
-			GuiUtils.showSuccessMessage("Open command cancelled by user." + '\n');
+			GuiUtils.showSuccessMessage("Open command cancelled.");
 		}
 
 		return image;
@@ -248,11 +277,13 @@ public class MainView extends JPanel {
 				}
 
 				PublicKey key = cipher.getKey(publicKeyLoc);
-				BufferedImage source = imageSourcePanel.getImage();
-				BufferedImage watermark = imageWatermarkPanel.getImage();
+				BufferedImage source = ImageUtil.cloneImage(imageSourcePanel.getImage());
+				BufferedImage watermark = ImageUtil.cloneImage(imageWatermarkPanel.getImage());
 
 				outputImage = controller.handleEncode(cipher, key, source, watermark, blockSize);
 				imageOutputPanel.setImage(outputImage);
+
+				GuiUtils.showSuccessMessage("Finished encoding image.");
 			}
 		});
 
@@ -265,11 +296,13 @@ public class MainView extends JPanel {
 				}
 
 				PrivateKey key = cipher.getKey(privateKeyLoc);
-				BufferedImage source = imageSourcePanel.getImage();
-				BufferedImage watermark = imageWatermarkPanel.getImage();
+				BufferedImage source = ImageUtil.cloneImage(imageSourcePanel.getImage());
+				BufferedImage watermark = ImageUtil.cloneImage(imageWatermarkPanel.getImage());
 
 				outputImage = controller.handleDecode(cipher, key, source, watermark, blockSize);
 				imageOutputPanel.setImage(outputImage);
+
+				GuiUtils.showSuccessMessage("Finished decoding image.");
 			}
 		});
 
@@ -287,11 +320,14 @@ public class MainView extends JPanel {
 				"About application", new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				GuiUtils.showMessage(
-						MainView.this,
-						"About",
-						"<html>Fragile watermark encoding and decoding application.<br/><br />Created by Ryan M. Kane</html>",
-						JOptionPane.INFORMATION_MESSAGE);
+				if (aboutPanel == null) {
+					aboutPanel = new AboutPanel(appTitle, appVersion);
+				}
+
+				JOptionPane.showConfirmDialog(null, aboutPanel,
+						appTitle,
+						JOptionPane.OK_CANCEL_OPTION,
+						JOptionPane.PLAIN_MESSAGE);
 			}
 		});
 
@@ -405,5 +441,13 @@ public class MainView extends JPanel {
 
 	public String getPublicKeyLoc() {
 		return publicKeyLoc;
+	}
+
+	public void setApplicationTitle(String appTitle) {
+		this.appTitle = appTitle;
+	}
+
+	public void setApplicationVersion(String appVersion) {
+		this.appVersion = appVersion;
 	}
 }

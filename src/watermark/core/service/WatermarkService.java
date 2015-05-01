@@ -6,6 +6,11 @@ import java.security.PublicKey;
 
 import watermark.core.cipher.KeyCipher;
 
+/**
+ * This interface will be injected into the a controller.
+ *
+ * @author Ryan M. Kane
+ */
 public interface WatermarkService {
 	/**
 	 * Encode a watermark into an image.

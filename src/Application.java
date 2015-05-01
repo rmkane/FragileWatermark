@@ -1,7 +1,11 @@
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import watermark.core.cipher.PublicKeyCipher;
+import watermark.core.service.WatermarkService;
+import watermark.core.service.WatermarkServiceImpl;
+import watermark.core.util.ImageUtil;
 import watermark.gui.controller.MainViewContoller;
 import watermark.gui.view.MainView;
 
@@ -13,6 +17,8 @@ import watermark.gui.view.MainView;
  */
 public class Application {
 	private static final String APP_TITLE = "Fragile Watermark App";
+	private static final String APP_VERSION = "1.0";
+	private static final String APP_ICON = "resources/icon-64.png";
 
 	public static void main(String[] args) {
 		SwingUtilities.invokeLater(new Runnable() {
@@ -21,12 +27,18 @@ public class Application {
 				JFrame frame = new JFrame();
 				MainView view = new MainView();
 				MainViewContoller controller = new MainViewContoller();
+				WatermarkService service = new WatermarkServiceImpl();
+				ImageIcon icon = ImageUtil.loadIcon(APP_ICON);
 
+				controller.setWatermarkService(service);
+				view.setApplicationTitle(APP_TITLE);
+				view.setApplicationVersion(APP_VERSION);
 				view.setController(controller);
 
 				// Inject an RSA Public Key cipher into the view.
 				view.setKeyCipher(new PublicKeyCipher("RSA"));
 
+				frame.setIconImage(icon.getImage());
 				frame.setContentPane(view);
 				frame.setTitle(APP_TITLE);
 				frame.pack();

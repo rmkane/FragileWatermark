@@ -10,6 +10,12 @@ import watermark.core.util.BitUtil;
 import watermark.core.util.CommonUtil;
 import watermark.core.util.ImageUtil;
 
+/**
+ * This is an implementation of the WatermarkService. This handles the encoding
+ * and decoding of a watermarked image.
+ *
+ * @author Ryan M. Kane
+ */
 public class WatermarkServiceImpl implements WatermarkService {
 	/**
 	 * Encode a watermark into an image.
@@ -96,6 +102,7 @@ public class WatermarkServiceImpl implements WatermarkService {
 		int imgHeight = source.getHeight();
 
 		BufferedImage[][] blocks = ImageUtil.partitionImage(source, blockSize);
+		int[] blackPixels = CommonUtil.getSolidPixels(blockSize, 0xFF000000);
 
 		int blockCountY = blocks.length;
 		int blockCountX = blocks[0].length;
@@ -114,20 +121,14 @@ public class WatermarkServiceImpl implements WatermarkService {
 
 				// Only watermark full image blocks.
 				if (block.getWidth() == blockSize && block.getHeight() == blockSize) {
-					checksumData[index] = decodeBlock(cipher, key, block, watermarkMask, index, imgWidth, imgHeight);
+					decodeBlock(cipher, key, block, watermarkMask, index, imgWidth, imgHeight, blackPixels);
 				} else {
 					checksumData[index] = 0xFF7F7F7F;
 				}
 			}
 		}
 
-		int checksumWidth = (int) Math.ceil((double) source.getWidth() / blockSize);
-		int checksumHeight = (int) Math.ceil((double) source.getHeight() / blockSize);
-
-		BufferedImage checksumImage = new BufferedImage(checksumWidth, checksumHeight, BufferedImage.TYPE_INT_ARGB);
-		checksumImage.setRGB(0, 0, checksumWidth, checksumHeight, checksumData, 0, checksumWidth);
-
-		return ImageUtil.scaleImage(checksumImage, blockSize);
+		return ImageUtil.recombine(blocks);
 	}
 
 	/**
@@ -141,7 +142,7 @@ public class WatermarkServiceImpl implements WatermarkService {
 	 * @param imgHeight - the height of the whole watermarked image.
 	 * @return
 	 */
-	private int decodeBlock(KeyCipher cipher, PrivateKey key, BufferedImage block, byte[] watermark, int index, int imgWidth, int imgHeight) {
+	private void decodeBlock(KeyCipher cipher, PrivateKey key, BufferedImage block, byte[] watermark, int index, int imgWidth, int imgHeight, int[] mark) {
 		int w = block.getWidth();
 		int h = block.getHeight();
 		int[] pixels = ImageUtil.getPixels(block);
@@ -160,16 +161,13 @@ public class WatermarkServiceImpl implements WatermarkService {
 			byte[] xorData = CommonUtil.xor(hashBytes, cipherData);
 
 			if (Arrays.equals(xorData, watermark)) {
-				// The decrypted hash does not match the expected watermark.
-				return 0xFFFFFFFF;
-			} else {
-				// The block was not tampered with, but the comparison of the
-				// actual and expected watermark failed.
-				return 0xFFFF0000;
+				// The decrypted hash matches the expected watermark.
+				return;
 			}
 		} catch (Exception e) {
 			// Expecting a javax.crypto.BadPaddingException.
-			return 0xFF000000;
 		}
+
+		block.setRGB(0, 0, w, h, mark, 0, w);
 	}
 }

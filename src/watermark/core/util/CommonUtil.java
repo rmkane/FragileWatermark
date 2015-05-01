@@ -221,4 +221,22 @@ public class CommonUtil {
 
 		return result;
 	}
+
+	/**
+	 * Returns an integer array of pixels in the given color.
+	 *
+	 * @param blockSize - the square size.
+	 * @param color - the color to fill in for all pixels.
+	 * @return an integer array of pixels in the given color.
+	 */
+	public static int[] getSolidPixels(int blockSize, int color) {
+		int size = blockSize * blockSize;
+		int[] data = new int[size];
+
+		for (int i = 0; i < size; i++) {
+			data[i] = color;
+		}
+
+		return data;
+	}
 }

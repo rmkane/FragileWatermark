@@ -18,6 +18,14 @@ import watermark.core.service.WatermarkService;
 public class MainViewContoller {
 	private WatermarkService watermarkService;
 
+	public WatermarkService getWatermarkService() {
+		return watermarkService;
+	}
+
+	public void setWatermarkService(WatermarkService watermarkService) {
+		this.watermarkService = watermarkService;
+	}
+
 	/**
 	 * Encode a watermark into an image.
 	 *

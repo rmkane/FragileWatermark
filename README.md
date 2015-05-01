@@ -13,7 +13,7 @@ If you open the jar file, using an archiving tool i.e. [*7-Zip*][1], and navigat
 
 Using the `appconfig.properties` file, you can specify:
 * Where your private/public keys exist in your file system.
-* The image block size. The default it 16x16 pixels.
+* The image block size. The default it 32x32 pixels.
 
 ## Source Code
 

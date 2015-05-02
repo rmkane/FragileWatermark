@@ -1,8 +1,12 @@
 # Fragile Watermark Application
 
+Copyright &copy; 2015, Ryan M. Kane. Licensed under MIT License.
+
 ## About
 
 This application encodes and decodes watermarks from images using a fragile watermarking strategy. The source code is written in Java and deployed as a standalone jar file. The application's user interface is built using Java's Swing and AWT APIs.
+
+Please read the licensing agreement in the LICENSES.txt file.
 
 ## Contributing
 
@@ -12,7 +16,7 @@ If you have forked this project and would like to improve any of the code, pleas
 
 There a already some executable jars already built on the [Releases][1] page. It is suggested that you place the jar in a directory that can be written to as the default key and configuration files will be saved in said directory.
 
-## Documentaion
+## Documentation
 
 The [project's Wiki][2] provides more information about the what the application is about and what it does.
 

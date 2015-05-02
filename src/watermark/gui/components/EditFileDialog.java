@@ -9,6 +9,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +31,9 @@ import javax.swing.JTextField;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.undo.UndoManager;
 
 import watermark.core.util.FileUtil;
 import watermark.core.util.GuiUtils;
@@ -59,17 +64,20 @@ public class EditFileDialog extends JDialog {
 	private int width;
 	private int height;
 	private String[] reqProps;
+	private String resourceName;
 
 	private JTextArea txtArea;
 	private JScrollPane txtAreaScroll;
 	private TextLineNumber textLineNumber;
 	private JToolBar toolBar;
 	private JButton saveButton;
+	private JButton undoButton;
+	private JButton redoButton;
 	private JButton zoomInButton;
 	private JButton zoomOutButton;
 	private JButton zoomDefButton;
 
-	private String resourceName;
+	private TextAreaUndoManager undoManager;
 
 	public EditFileDialog(Frame frameOwner, int width, int height, String resourceName, String[] reqProps) {
 		this(frameOwner, width, height);
@@ -84,10 +92,11 @@ public class EditFileDialog extends JDialog {
 
 		this.width = width;
 		this.height = height;
-
+		this.undoManager = new TextAreaUndoManager(60);
 
 		this.initComponent();
 		this.addChildren();
+		this.addListeners();
 		this.setIconImage(AppIcons.getAppImage());
 		this.setTitle("No file loaded");
 		this.setLocationByPlatform(true);
@@ -97,6 +106,8 @@ public class EditFileDialog extends JDialog {
 	protected void initComponent() {
 		toolBar = new JToolBar("Still draggable");
 		saveButton = createButton(new SaveAction(), AppIcons.getSaveIcon(), "Save");
+		undoButton = createButton(new UndoAction(), AppIcons.getUndoIcon(), "Undo");
+		redoButton = createButton(new RedoAction(), AppIcons.getRedoIcon(), "Redo");
 		zoomInButton = createButton(new ZoomInAction(), AppIcons.getZoomInIcon(), "Zoom In (Ctrl + Mouse Wheel Up)");
 		zoomOutButton = createButton(new ZoomOutAction(), AppIcons.getZoomOutIcon(), "Zoom Out (Ctrl + Mouse Wheel Down)");
 		zoomDefButton = createButton(new ZoomDefaultAction(), AppIcons.getZoomDefaultIcon(), "Zoom Default");
@@ -118,12 +129,72 @@ public class EditFileDialog extends JDialog {
 		txtAreaScroll.setBorder(PAD_BORDER);
 		txtAreaScroll.setRowHeaderView(textLineNumber);
 
-		// Add Children
-		this.setLayout(new BorderLayout());
+		// Attach the undo manager to the text area.
+		undoManager.attach(txtArea);
+	}
+
+	private void addListeners() {
+		this.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				if (saveButton.isEnabled()) {
+					int option = JOptionPane.showConfirmDialog(null,
+							"Do you wish to save your changes", "Document Modified",
+							JOptionPane.YES_NO_OPTION,
+							JOptionPane.QUESTION_MESSAGE);
+
+					if (option == JOptionPane.YES_OPTION) {
+						// If save was selected, but the save failed, prevent
+						// the window from closing. Else, allow the window to be
+						// closed.
+						if (!handleSave()) {
+							setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+						} else {
+							setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+						}
+					} else {
+						setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+					}
+				}
+			}
+		});
+
+		txtArea.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				handleDocumentUpdate(e);
+			}
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				handleDocumentUpdate(e);
+			}
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				handleDocumentUpdate(e);
+			}
+		});
+	}
+
+	private void handleDocumentUpdate(DocumentEvent e) {
+		if (!this.saveButton.isEnabled()) {
+			this.saveButton.setEnabled(true);
+		}
+
+		if (this.getUndoManager().canUndo()) {
+			this.undoButton.setEnabled(true);
+		}
+
+		if (this.getUndoManager().canRedo()) {
+			this.redoButton.setEnabled(true);
+		}
 	}
 
 	protected void addChildren() {
+		this.setLayout(new BorderLayout());
+
 		toolBar.add(saveButton);
+		toolBar.add(undoButton);
+		toolBar.add(redoButton);
 		toolBar.add(zoomInButton);
 		toolBar.add(zoomOutButton);
 		toolBar.add(zoomDefButton);
@@ -134,7 +205,7 @@ public class EditFileDialog extends JDialog {
 
 	public void loadFile(String resourceName) {
 		if (resourceName == this.resourceName) {
-			GuiUtils.showErrorMessage(String.format("The resource is already loaded: %s%n", resourceName));
+			GuiUtils.showErrorMessage(String.format("The file is already loaded: %s%n", resourceName));
 			return;
 		}
 
@@ -156,6 +227,10 @@ public class EditFileDialog extends JDialog {
 		if (!this.isVisible()) {
 			this.reloadResource();
 			this.setVisible(true);
+			this.undoManager.resetEdits();
+			this.saveButton.setEnabled(false);
+			this.undoButton.setEnabled(false);
+			this.redoButton.setEnabled(false);
 		}
 
 		// Request focus on text area.
@@ -175,6 +250,90 @@ public class EditFileDialog extends JDialog {
 		button.setFocusPainted(false);
 
 		return button;
+	}
+
+	public boolean validateProperties(String text) {
+		try {
+			Properties props = new Properties();
+			InputStream stream = new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8));
+			props.load(stream);
+
+			if (props == null || props.isEmpty()) {
+				GuiUtils.showErrorMessage("Properties are missing!");
+				return false;
+			}
+
+			for (String prop : reqProps) {
+				if (!props.containsKey(prop)) {
+					GuiUtils.showErrorMessage("Property is missing: " + prop);
+					return false;
+				}
+			}
+
+			return true;
+		} catch (IOException e) {
+			return false;
+		}
+	}
+
+	private UndoManager getUndoManager() {
+		return this.undoManager.getUndoManager();
+	}
+
+	// ========================================================================
+	// Action handlers
+	// ========================================================================
+	private boolean handleSave() {
+		String rawText = txtArea.getText();
+
+		if (!validateProperties(rawText)) {
+			GuiUtils.showErrorMessage("Properties invalid. Please check for errors.");
+			return false;
+		}
+
+		if (!FileUtil.fileExists(resourceName)) {
+			GuiUtils.showMessage(null, AppConfig.APP_TITLE,
+					"File does not exist, creating new file.",
+					JOptionPane.INFORMATION_MESSAGE);
+		}
+
+		FileUtil.writeConfig(rawText, resourceName);
+
+		if (!FileUtil.fileExists(resourceName)) {
+			GuiUtils.showErrorMessage("Save failed. Please check directory permissions.");
+			return false;
+		} else {
+			GuiUtils.showSuccessMessage("Wrote configuration to: " + resourceName);
+			return true;
+		}
+	}
+
+	private void handleUndo() {
+		if (getUndoManager().canUndo()) {
+			getUndoManager().undo();
+
+			if (getUndoManager().canRedo() && !redoButton.isEnabled()) {
+				redoButton.setEnabled(true);
+			}
+		}
+
+		if (!getUndoManager().canUndo()) {
+			undoButton.setEnabled(false);
+		}
+	}
+
+	private void handleRedo() {
+		if (getUndoManager().canRedo()) {
+			getUndoManager().redo();
+
+			if (!undoButton.isEnabled()) {
+				undoButton.setEnabled(true);
+			}
+		}
+
+		if (getUndoManager().canUndo() && !getUndoManager().canRedo()) {
+			redoButton.setEnabled(false);
+		}
 	}
 
 	private void handleZoomIn() {
@@ -221,6 +380,10 @@ public class EditFileDialog extends JDialog {
 		}
 	}
 
+	// ========================================================================
+	// Toolbar Actions
+	// ========================================================================
+
 	private class SaveAction extends AbstractAction {
 		private static final long serialVersionUID = -779576692147872538L;
 
@@ -230,50 +393,33 @@ public class EditFileDialog extends JDialog {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String rawText = txtArea.getText();
-
-			if (!validateProperties(rawText)) {
-				GuiUtils.showErrorMessage("Properties invalid. Please check for errors.");
-				return;
-			}
-
-			if (!FileUtil.fileExists(resourceName)) {
-				GuiUtils.showMessage(null, AppConfig.APP_TITLE,
-						"File does not exist, creating new file.",
-						JOptionPane.INFORMATION_MESSAGE);
-			}
-
-			FileUtil.writeConfig(rawText, resourceName);
-
-			if (!FileUtil.fileExists(resourceName)) {
-				GuiUtils.showErrorMessage("Save failed. Please check directory permissions.");
-			} else {
-				GuiUtils.showSuccessMessage("Wrote configuration to: " + resourceName);
+			if (handleSave()) {
+				saveButton.setEnabled(false);
 			}
 		}
 	}
 
-	public boolean validateProperties(String text) {
-		try {
-			Properties props = new Properties();
-			InputStream stream = new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8));
-			props.load(stream);
+	private class UndoAction extends AbstractAction {
+		private static final long serialVersionUID = 3148924981951371406L;
 
-			if (props == null || props.isEmpty()) {
-				GuiUtils.showErrorMessage("Properties are missing!");
-				return false;
-			}
+		public UndoAction() {
+		}
 
-			for (String prop : reqProps) {
-				if (!props.containsKey(prop)) {
-					GuiUtils.showErrorMessage("Property is missing: " + prop);
-					return false;
-				}
-			}
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			handleUndo();
+		}
+	}
 
-			return true;
-		} catch (IOException e) {
-			return false;
+	private class RedoAction extends AbstractAction {
+		private static final long serialVersionUID = 5509505828576734702L;
+
+		public RedoAction() {
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			handleRedo();
 		}
 	}
 
@@ -322,7 +468,7 @@ public class EditFileDialog extends JDialog {
 			if (e.isControlDown()) {
 				if (e.getWheelRotation() < 0)  {
 					handleZoomIn();
-				}else{
+				} else{
 					handleZoomOut();
 				}
 			}
@@ -339,7 +485,7 @@ public class EditFileDialog extends JDialog {
 				final JFrame mainFrame = new JFrame("Resource Editor");
 				final JTextField txtField = new JTextField();
 				JButton btn = new JButton("Open Dialog");
-				String resourceName = "/resources/appconfig.properties";
+				String resourceName = "appconfig.properties";
 
 				txtField.setText(resourceName);
 

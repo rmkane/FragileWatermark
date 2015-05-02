@@ -47,6 +47,14 @@ public class AppIcons {
 		return IconUtil.loadResourceIcon("save.png");
 	}
 
+	public static final ImageIcon getUndoIcon() {
+		return IconUtil.loadResourceIcon("undo-alt.png");
+	}
+
+	public static final ImageIcon getRedoIcon() {
+		return IconUtil.loadResourceIcon("redo-alt.png");
+	}
+
 	public static final ImageIcon getZoomInIcon() {
 		return IconUtil.loadResourceIcon("zoom-in.png");
 	}

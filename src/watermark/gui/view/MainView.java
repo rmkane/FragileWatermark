@@ -51,7 +51,7 @@ public class MainView extends JPanel {
 	private static final long serialVersionUID = 1082139773406203487L;
 
 	// Create a file chooser
-	private final JFileChooser EXPLORER = new JFileChooser();
+	private final JFileChooser EXPLORER = new JFileChooser("./");
 	private static final String CONFIG_FILENAME = "appconfig.properties";
 	public static final String DEFAULT_PRIVATE_KEY_LOC = "C:/keys/private.key";
 	public static final String DEFAULT_PUBLIC_KEY_LOC = "C:/keys/public.key";

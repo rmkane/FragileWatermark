@@ -28,32 +28,37 @@ public class FileUtil {
 	 */
 	public static Properties loadProperties(String filename) {
 		Properties props = new Properties();
-		InputStream is = null;
+		InputStream is = loadFileStream(filename);
 
-		// First try loading from the file system.
+		// Try loading properties from the file (if found)
 		try {
-			File f = new File(filename);
-			is = new FileInputStream(f);
-		} catch (Exception e) {
-			is = null;
+			props.load(is);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 
 		try {
-			if (is == null) {
-				// Try loading from classpath.
-				is = FileUtil.class.getResourceAsStream(filename);
-			}
-			// Try loading properties from the file (if found)
-			props.load(is);
-		} catch (Exception e) {
-		} finally {
-			try {
-				is.close();
-			} catch (IOException e) {
-			}
+			is.close();
+		} catch (IOException e) {
 		}
 
 		return props;
+	}
+
+	public static boolean fileExists(String filename) {
+		File f = new File("./" + filename);
+
+		return f.isFile() && f.exists();
+	}
+
+	public static InputStream loadFileStream(String filename) {
+		// First try loading from the file system.
+		try {
+			return new FileInputStream(new File("./" + filename));
+		} catch (Exception e) {
+			// Try loading from classpath.
+			return FileUtil.class.getResourceAsStream("/resources/" + filename);
+		}
 	}
 
 	/**
@@ -82,6 +87,25 @@ public class FileUtil {
 		}
 	}
 
+	/**
+	 * Saves text to a resource file.
+	 *
+	 * @param text - text to save to the file.
+	 * @param filename - the filename to save the text to.
+	 */
+	public static void writeConfig(String text, String filename) {
+		PrintWriter writer = null;
+
+		try {
+			writer = new PrintWriter(new File("./" + filename).getPath());
+			writer.print(text);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			writer.close();
+		}
+	}
+
 	public static String loadResourceFileText(String resourcePath) {
 		StringBuilder fileContents = new StringBuilder();
 		InputStream inStream = null;
@@ -90,7 +114,7 @@ public class FileUtil {
 		String line = null;
 
 		try {
-			inStream = FileUtil.class.getResourceAsStream(resourcePath);
+			inStream = loadFileStream(resourcePath);
 			streamReader = new InputStreamReader(inStream);
 			reader = new BufferedReader(streamReader);
 

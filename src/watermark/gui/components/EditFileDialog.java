@@ -9,6 +9,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Properties;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -17,6 +22,7 @@ import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -26,6 +32,7 @@ import javax.swing.border.Border;
 
 import watermark.core.util.FileUtil;
 import watermark.core.util.GuiUtils;
+import watermark.gui.AppConfig;
 import watermark.gui.AppIcons;
 
 public class EditFileDialog extends JDialog {
@@ -41,7 +48,6 @@ public class EditFileDialog extends JDialog {
 	private static final float FONT_SIZE_MIN = 10f;
 	private static final float FONT_SIZE_MAX = 24f;
 
-
 	static {
 		PAD = 8;
 		BORDER_COLOR = new Color(0xFFD7D7D7, true);
@@ -52,6 +58,7 @@ public class EditFileDialog extends JDialog {
 
 	private int width;
 	private int height;
+	private String[] reqProps;
 
 	private JTextArea txtArea;
 	private JScrollPane txtAreaScroll;
@@ -64,11 +71,20 @@ public class EditFileDialog extends JDialog {
 
 	private String resourceName;
 
+	public EditFileDialog(Frame frameOwner, int width, int height, String resourceName, String[] reqProps) {
+		this(frameOwner, width, height);
+
+		// Load the resource.
+		this.loadFile(resourceName);
+		this.reqProps = reqProps;
+	}
+
 	public EditFileDialog(Frame frameOwner, int width, int height) {
 		super(frameOwner);
 
 		this.width = width;
 		this.height = height;
+
 
 		this.initComponent();
 		this.addChildren();
@@ -114,14 +130,6 @@ public class EditFileDialog extends JDialog {
 
 		this.add(toolBar, BorderLayout.PAGE_START);
 		this.add(txtAreaScroll, BorderLayout.CENTER);
-
-	}
-
-	public EditFileDialog(Frame frameOwner, String resourceName, int width, int height) {
-		this(frameOwner, width, height);
-
-		// Load the resource.
-		this.loadFile(resourceName);
 	}
 
 	public void loadFile(String resourceName) {
@@ -152,6 +160,10 @@ public class EditFileDialog extends JDialog {
 
 		// Request focus on text area.
 		this.txtArea.requestFocusInWindow();
+	}
+
+	public void setReqProps(String[] reqProps) {
+		this.reqProps = reqProps;
 	}
 
 	private JButton createButton(Action action, Icon icon, String toolTipText) {
@@ -217,10 +229,51 @@ public class EditFileDialog extends JDialog {
 		}
 
 		@Override
-		public void actionPerformed(ActionEvent arg0) {
-			GuiUtils.showSuccessMessage("Save");
+		public void actionPerformed(ActionEvent e) {
+			String rawText = txtArea.getText();
 
-			// Implement save.
+			if (!validateProperties(rawText)) {
+				GuiUtils.showErrorMessage("Properties invalid. Please check for errors.");
+				return;
+			}
+
+			if (!FileUtil.fileExists(resourceName)) {
+				GuiUtils.showMessage(null, AppConfig.APP_TITLE,
+						"File does not exist, creating new file.",
+						JOptionPane.INFORMATION_MESSAGE);
+			}
+
+			FileUtil.writeConfig(rawText, resourceName);
+
+			if (!FileUtil.fileExists(resourceName)) {
+				GuiUtils.showErrorMessage("Save failed. Please check directory permissions.");
+			} else {
+				GuiUtils.showSuccessMessage("Wrote configuration to: " + resourceName);
+			}
+		}
+	}
+
+	public boolean validateProperties(String text) {
+		try {
+			Properties props = new Properties();
+			InputStream stream = new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8));
+			props.load(stream);
+
+			if (props == null || props.isEmpty()) {
+				GuiUtils.showErrorMessage("Properties are missing!");
+				return false;
+			}
+
+			for (String prop : reqProps) {
+				if (!props.containsKey(prop)) {
+					GuiUtils.showErrorMessage("Property is missing: " + prop);
+					return false;
+				}
+			}
+
+			return true;
+		} catch (IOException e) {
+			return false;
 		}
 	}
 
@@ -302,7 +355,8 @@ public class EditFileDialog extends JDialog {
 					@Override
 					public void actionPerformed(ActionEvent arg0) {
 						String resourceName = txtField.getText().trim();
-						EditFileDialog dialog = new EditFileDialog(mainFrame, resourceName, 900, 500);
+						String[] reqProps = new String[] {};
+						EditFileDialog dialog = new EditFileDialog(mainFrame, 900, 500, resourceName, reqProps);
 
 						dialog.launch();
 					}

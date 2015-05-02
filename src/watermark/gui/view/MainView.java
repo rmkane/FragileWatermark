@@ -52,10 +52,14 @@ public class MainView extends JPanel {
 
 	// Create a file chooser
 	private final JFileChooser EXPLORER = new JFileChooser();
-	private static final String CONFIG_FILENAME = "/resources/appconfig.properties";
+	private static final String CONFIG_FILENAME = "appconfig.properties";
 	public static final String DEFAULT_PRIVATE_KEY_LOC = "C:/keys/private.key";
 	public static final String DEFAULT_PUBLIC_KEY_LOC = "C:/keys/public.key";
 	public static final int DEFAULT_BLOCK_SIZE = 32;
+
+	public static final String[] REQ_PROPS = new String[] {
+		"privateKeyLoc", "publicKeyLoc", "blockSize"
+	};
 
 	private String appTitle;
 
@@ -114,8 +118,6 @@ public class MainView extends JPanel {
 		this.privateKeyLoc = props.getProperty("privateKeyLoc", DEFAULT_PRIVATE_KEY_LOC);
 		this.publicKeyLoc = props.getProperty("publicKeyLoc", DEFAULT_PUBLIC_KEY_LOC);
 		this.blockSize = Integer.parseInt(props.getProperty("blockSize", Integer.toString(DEFAULT_BLOCK_SIZE, 10)), 10);
-
-		System.out.println(this.privateKeyLoc);
 	}
 
 	@SuppressWarnings("unused")
@@ -365,7 +367,8 @@ public class MainView extends JPanel {
 		private static final long serialVersionUID = -5862651506038768293L;
 
 		public KeyGenAction() {
-			super("Generate Keys", AppIcons.getKeysIcon(), KeyEvent.VK_G, "Generate RSA public/private key pairs.");
+			super("Generate Keys", AppIcons.getKeysIcon(), KeyEvent.VK_G,
+					"Generate RSA public/private key pairs.");
 		}
 
 		@Override
@@ -391,13 +394,14 @@ public class MainView extends JPanel {
 		private static final long serialVersionUID = 3875241178326699899L;
 
 		public EditConfigAction() {
-			super("Edit Config", AppIcons.getEditIcon(), KeyEvent.VK_C, "Edit application configuration file.");
+			super("Edit Config", AppIcons.getEditIcon(), KeyEvent.VK_C,
+					"Edit application configuration file.");
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (dialog == null) {
-				dialog = new EditFileDialog(null, CONFIG_FILENAME, 360, 580);
+				dialog = new EditFileDialog(null, 360, 580, CONFIG_FILENAME, REQ_PROPS);
 			}
 
 			dialog.launch();

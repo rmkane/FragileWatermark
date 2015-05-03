@@ -16,7 +16,7 @@ public interface KeyCipher {
 
 	boolean areKeysPresent(String publicKeyLocation, String privateKeyLocation);
 
-	byte[] encrypt(byte[] data, PublicKey key);
+	byte[] encrypt(byte[] data, PrivateKey key);
 
-	byte[] decrypt(byte[] data, PrivateKey key);
+	byte[] decrypt(byte[] data, PublicKey key);
 }

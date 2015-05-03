@@ -131,14 +131,14 @@ public class PublicKeyCipher implements KeyCipher {
 
 
 	/**
-	 * Encrypt the plain text using public key.
+	 * Encrypt the plain text using private key.
 	 *
 	 * @param data - data to be encrypted.
-	 * @param key - The public key.
+	 * @param key - The private key.
 	 * @return Encrypted text.
 	 */
 	@Override
-	public byte[] encrypt(byte[] data, PublicKey key) {
+	public byte[] encrypt(byte[] data, PrivateKey key) {
 		byte[] cipherText = null;
 		try {
 			final Cipher cipher = Cipher.getInstance(getAlgorithm());
@@ -153,14 +153,14 @@ public class PublicKeyCipher implements KeyCipher {
 	}
 
 	/**
-	 * Decrypt byte data using private key.
+	 * Decrypt byte data using public key.
 	 *
 	 * @param data - the data to decrypt.
-	 * @param key - the private key.
+	 * @param key - the public key.
 	 * @return decrypted byte data.
 	 */
 	@Override
-	public byte[] decrypt(byte[] data, PrivateKey key) {
+	public byte[] decrypt(byte[] data, PublicKey key) {
 		try {
 			final Cipher cipher = Cipher.getInstance(getAlgorithm());
 
@@ -174,24 +174,24 @@ public class PublicKeyCipher implements KeyCipher {
 	}
 
 	/**
-	 * Decrypt text using public key.
-	 *
-	 * @param text - encrypted text.
-	 * @param key - The public key.
-	 * @return plain text.
-	 */
-	public byte[] encryptStr(String text, PublicKey key) {
-		return encrypt(text.getBytes(), key);
-	}
-
-	/**
 	 * Decrypt text using private key.
 	 *
 	 * @param text - encrypted text.
 	 * @param key - The private key.
 	 * @return plain text.
 	 */
-	public String decryptStr(byte[] text, PrivateKey key) {
+	public byte[] encryptStr(String text, PrivateKey key) {
+		return encrypt(text.getBytes(), key);
+	}
+
+	/**
+	 * Decrypt text using public key.
+	 *
+	 * @param text - encrypted text.
+	 * @param key - The public key.
+	 * @return plain text.
+	 */
+	public String decryptStr(byte[] text, PublicKey key) {
 		return new String(decrypt(text, key));
 	}
 }

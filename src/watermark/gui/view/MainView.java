@@ -422,7 +422,7 @@ public class MainView extends JPanel {
 				return;
 			}
 
-			PublicKey key = cipher.getKey(publicKeyLoc);
+			PrivateKey key = cipher.getKey(privateKeyLoc);
 			BufferedImage source = ImageUtil.cloneImage(imageSourcePanel.getImage());
 			BufferedImage watermark = ImageUtil.cloneImage(imageWatermarkPanel.getImage());
 
@@ -447,7 +447,7 @@ public class MainView extends JPanel {
 				return;
 			}
 
-			PrivateKey key = cipher.getKey(privateKeyLoc);
+			PublicKey key = cipher.getKey(publicKeyLoc);
 			BufferedImage source = ImageUtil.cloneImage(imageSourcePanel.getImage());
 			BufferedImage watermark = ImageUtil.cloneImage(imageWatermarkPanel.getImage());
 

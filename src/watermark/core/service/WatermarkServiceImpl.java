@@ -21,14 +21,14 @@ public class WatermarkServiceImpl implements WatermarkService {
 	 * Encode a watermark into an image.
 	 *
 	 * @param cipher - the cipher method for encoding.
-	 * @param key - the public key.
+	 * @param key - the private key.
 	 * @param source - the image to be watermarked.
 	 * @param watermark - the watermark to apply to the image.
 	 * @param blockSize - image blocks pixel size.
 	 * @return an image encoded with an encrypted watermark hash.
 	 */
 	@Override
-	public BufferedImage encode(KeyCipher cipher, PublicKey key, BufferedImage source, BufferedImage watermark, int blockSize) {
+	public BufferedImage encode(KeyCipher cipher, PrivateKey key, BufferedImage source, BufferedImage watermark, int blockSize) {
 		int imgWidth = source.getWidth();
 		int imgHeight = source.getHeight();
 
@@ -61,13 +61,13 @@ public class WatermarkServiceImpl implements WatermarkService {
 	 * block. This modifies the image block in-place.
 	 *
 	 * @param cipher - the cipher method for encoding.
-	 * @param key - the public key.
+	 * @param key - the private key.
 	 * @param block - the current image block.
 	 * @param watermark - the watermark mask to XOR with with block MD5 hash.
 	 * @param imgWidth - the width of the whole image to be watermarked.
 	 * @param imgHeight - the height of the whole image to be watermarked.
 	 */
-	private void encodeBlock(KeyCipher cipher, PublicKey key, BufferedImage block, byte[] watermark, int imgWidth, int imgHeight) {
+	private void encodeBlock(KeyCipher cipher, PrivateKey key, BufferedImage block, byte[] watermark, int imgWidth, int imgHeight) {
 		int w = block.getWidth();
 		int h = block.getHeight();
 		int[] pixels = ImageUtil.getPixels(block);
@@ -90,14 +90,14 @@ public class WatermarkServiceImpl implements WatermarkService {
 	 * Decode a watermarked image.
 	 *
 	 * @param cipher - the cipher method for decoding.
-	 * @param key - the private key.
+	 * @param key - the public key.
 	 * @param source - the image that is watermarked.
 	 * @param watermark - the watermark to compare to the extracted hash.
 	 * @param blockSize - image blocks pixel size.
 	 * @return the XORed watermark hash.
 	 */
 	@Override
-	public BufferedImage decode(KeyCipher cipher, PrivateKey key, BufferedImage source, BufferedImage watermark, int blockSize) {
+	public BufferedImage decode(KeyCipher cipher, PublicKey key, BufferedImage source, BufferedImage watermark, int blockSize) {
 		int imgWidth = source.getWidth();
 		int imgHeight = source.getHeight();
 
@@ -134,7 +134,7 @@ public class WatermarkServiceImpl implements WatermarkService {
 	/**
 	 *
 	 *@param cipher - the cipher method for decoding.
-	 * @param key - the private key.
+	 * @param key - the public key.
 	 * @param block - the current watermarked image block.
 	 * @param watermark - the watermark mask to compare to the decrypted hash.
 	 * @param index - the current index for the image block.
@@ -142,7 +142,7 @@ public class WatermarkServiceImpl implements WatermarkService {
 	 * @param imgHeight - the height of the whole watermarked image.
 	 * @return
 	 */
-	private void decodeBlock(KeyCipher cipher, PrivateKey key, BufferedImage block, byte[] watermark, int index, int imgWidth, int imgHeight, int[] mark) {
+	private void decodeBlock(KeyCipher cipher, PublicKey key, BufferedImage block, byte[] watermark, int index, int imgWidth, int imgHeight, int[] mark) {
 		int w = block.getWidth();
 		int h = block.getHeight();
 		int[] pixels = ImageUtil.getPixels(block);

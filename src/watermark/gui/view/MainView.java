@@ -350,8 +350,8 @@ public class MainView extends JPanel {
 		private static final long serialVersionUID = -474256531181431784L;
 
 		public ClearImagesAction() {
-			super("Clear Images", AppIcons.getClearIcon(), KeyEvent.VK_G,
-					"Generate RSA public/private key pairs.");
+			super("Clear Images", AppIcons.getClearIcon(), KeyEvent.VK_C,
+					"Clear all images.");
 		}
 
 		@Override
@@ -394,7 +394,7 @@ public class MainView extends JPanel {
 		private static final long serialVersionUID = 3875241178326699899L;
 
 		public EditConfigAction() {
-			super("Edit Config", AppIcons.getEditIcon(), KeyEvent.VK_C,
+			super("Edit Config", AppIcons.getEditIcon(), KeyEvent.VK_E,
 					"Edit application configuration file.");
 		}
 
@@ -437,7 +437,7 @@ public class MainView extends JPanel {
 		private static final long serialVersionUID = -6728457739128748868L;
 
 		public DecodeImageAction() {
-			super("Decode", AppIcons.getDecodeIcon(), KeyEvent.VK_E,
+			super("Decode", AppIcons.getDecodeIcon(), KeyEvent.VK_D,
 					"Decode source image with watermark.");
 		}
 
